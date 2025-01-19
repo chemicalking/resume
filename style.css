@@ -1,0 +1,140 @@
+/* 主题颜色 - 浅色主题 */
+:root {
+    --primary-color: #2C7BE5;
+    --secondary-color: #1EA7FD;
+    --background-color: #FFFFFF;
+    --text-color: #1A1F36;
+    --highlight-color: #2C7BE5;
+}
+
+/* 全局样式 */
+.main {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 18px !important;
+}
+
+/* 标题样式 */
+h1 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 2.8em !important;
+}
+
+h2 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 2.4em !important;
+}
+
+h3 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 2em !important;
+}
+
+/* 文本样式 */
+p, li, a {
+    font-size: 1.4em !important;
+}
+
+/* 徽章样式 */
+.tech-badge {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    padding: 12px 24px;
+    border-radius: 25px;
+    margin: 10px;
+    display: inline-block;
+    color: white;
+    font-weight: 500;
+    font-size: 1.4em !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+/* 技能卡片样式 */
+.skill-card {
+    background: #F8FAFC;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 0;
+    border: 1px solid #E2E8F0;
+    font-size: 1.3em !important;
+}
+
+/* 数值显示样式 */
+.metric-value {
+    font-size: 2em !important;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.metric-card {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: 15px 0;
+}
+
+.metric-card h4 {
+    font-size: 1.6em !important;
+    margin-bottom: 15px;
+}
+
+.metric-delta {
+    font-size: 1.4em !important;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* 表格样式 */
+.dataframe {
+    font-size: 1.3em !important;
+}
+
+.dataframe th {
+    font-size: 1.4em !important;
+    font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px !important;
+}
+
+.dataframe td {
+    font-size: 1.3em !important;
+    padding: 10px !important;
+}
+
+/* 访问计数器样式 */
+.visitor-counter {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    padding: 15px 25px;
+    border-radius: 15px;
+    color: white;
+    font-size: 1.4em !important;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 9999;
+}
+
+/* 防止复制样式 */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+} 
