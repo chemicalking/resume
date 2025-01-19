@@ -22,7 +22,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
 
 # pip freeze > requirements.txt
-# .\venv\Scripts\activate.ps1
+# .\new_venv\Scripts\activate.ps1
 # cd "D:\curso\streamlit\resume"
 # streamlit run 01_🎈_resume_app.py
 #resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
@@ -425,7 +425,7 @@ st.markdown("""
 }
 </style>
 <div class='interview-notice'>
-    若需英文面試或加班請 pass | If you need an English interview, please pass
+    若需英文面試或加班請 pass | If you need an interview in English or work overtime, please pass
 </div>
 """, unsafe_allow_html=True)
 
