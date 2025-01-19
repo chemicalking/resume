@@ -126,7 +126,7 @@ def generate_gas_data():
     
     return data
 
-#@st.cache_data
+#@st.cache
 @st.cache
 def train_gas_model(data):
     features = ['hour', 'day_of_week', 'month']
@@ -431,12 +431,16 @@ st.markdown("""
 
 # 图片处理函数
 def load_profile_image():
-
-    from PIL import Image
-    image = Image.open('PHOTO.jpg')
-    img_caption = "Photo by Christina Brinza on Unsplash"
-    
-    return st.image(image, caption=img_caption)
+    try:
+        img_path = Path("PHOTO.jpg")
+        if img_path.exists():
+            return Image.open(img_path)
+        else:
+            st.warning(f"無法找到圖片：{img_path}")
+            return None
+    except Exception as e:
+        st.warning(f"載入圖片時發生錯誤：{str(e)}")
+        return None
 
 # 主要内容区域
 if page == "📊 個人總覽":
@@ -749,7 +753,7 @@ elif page == "📈 專案展示":
         """, unsafe_allow_html=True)
         
         # 生成模拟数据
-        @st.cache_data
+        @st.cache
         def generate_process_data():
             n_samples = 1000
             np.random.seed(42)
@@ -992,8 +996,8 @@ elif page == "📈 專案展示":
         </div>
         """, unsafe_allow_html=True)
         
-        # 生成良率趋势数据
-        @st.cache_data
+        @st.cache
+       # @st.cache
         def generate_yield_trend():
             dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')
             base_yield = 0.75
