@@ -25,6 +25,7 @@ from sklearn.model_selection import cross_val_predict
 # .\venv\Scripts\activate.ps1
 # cd "D:\curso\streamlit\resume"
 # streamlit run 01_🎈_resume_app.py
+#resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
 
 # 访问统计函数
 def get_visitor_ip():
@@ -125,7 +126,8 @@ def generate_gas_data():
     
     return data
 
-@st.cache_data
+#@st.cache_data
+@st.cache
 def train_gas_model(data):
     features = ['hour', 'day_of_week', 'month']
     data['hour'] = data['timestamp'].dt.hour
