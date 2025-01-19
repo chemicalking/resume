@@ -738,16 +738,16 @@ elif page == "🛠️ 技能專長":
                 st.progress(level/100)
 
 elif page == "📈 專案展示":
-    tab1, tab2, tab3 = st.tabs(["🤖 製程分析", "📊 良率優化", "🔬 氣體監控"])
+    tab1, tab2, tab3 = st.tabs(["🤖 Process Analysis", "📊 Yield Optimization", "🔬 Gas Monitoring"])
     
     with tab1:
         st.markdown("""
         <div class='skill-card'>
-            <h3>🔹 PAD4T 製程優化分析</h3>
+            <h3>🔹 PAD4T Process Optimization Analysis</h3>
             <ul>
-                <li>多變量統計分析 (PCA/PLS)</li>
-                <li>關鍵參數識別 (VIP)</li>
-                <li>製程參數最佳化</li>
+                <li>Multivariate Statistical Analysis (PCA/PLS)</li>
+                <li>Key Parameter Identification (VIP)</li>
+                <li>Process Parameter Optimization</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -801,19 +801,19 @@ elif page == "📈 專案展示":
         fig_pca.add_trace(go.Bar(
             x=[f'PC{i+1}' for i in range(len(explained_variance_ratio))],
             y=explained_variance_ratio * 100,
-            name='解釋變異比例'
+            name='Explained Variance Ratio'
         ))
         fig_pca.add_trace(go.Scatter(
             x=[f'PC{i+1}' for i in range(len(cumulative_variance_ratio))],
             y=cumulative_variance_ratio * 100,
-            name='累積解釋變異比例',
+            name='Cumulative Explained Variance Ratio',
             mode='lines+markers'
         ))
         
         fig_pca.update_layout(
-            title='PCA 解釋變異比例',
-            xaxis_title='主成分',
-            yaxis_title='解釋變異比例 (%)',
+            title='PCA Explained Variance Ratio',
+            xaxis_title='Principal Component',
+            yaxis_title='Explained Variance Ratio (%)',
             height=400
         )
         
@@ -847,18 +847,18 @@ elif page == "📈 專案展示":
         vip_scores = vip(pls)
         
         # 显示VIP分析结果
-        st.markdown("### VIP 重要性分析")
+        st.markdown("### VIP Importance Analysis")
         
         vip_df = pd.DataFrame({
-            '參數': process_data.drop('PAD4T', axis=1).columns,
-            'VIP分數': vip_scores
+            'Parameter': process_data.drop('PAD4T', axis=1).columns,
+            'VIP Score': vip_scores
         })
-        vip_df = vip_df.sort_values('VIP分數', ascending=False)
+        vip_df = vip_df.sort_values('VIP Score', ascending=False)
         
         fig_vip = go.Figure()
         fig_vip.add_trace(go.Bar(
-            x=vip_df['參數'],
-            y=vip_df['VIP分數']
+            x=vip_df['Parameter'],
+            y=vip_df['VIP Score']
         ))
         
         fig_vip.add_shape(
@@ -871,19 +871,19 @@ elif page == "📈 專案展示":
         )
         
         fig_vip.update_layout(
-            title='參數 VIP 分數',
-            xaxis_title='製程參數',
-            yaxis_title='VIP 分數',
+            title='Parameter VIP Score',
+            xaxis_title='Process Parameter',
+            yaxis_title='VIP Score',
             height=400
         )
         
         st.plotly_chart(fig_vip, use_container_width=True)
         
         # 显示关键参数影响
-        st.markdown("### 關鍵參數影響分析")
+        st.markdown("### Key Parameter Impact Analysis")
         
         # 选择最重要的两个参数进行交互分析
-        top_params = vip_df['參數'].head(2).tolist()
+        top_params = vip_df['Parameter'].head(2).tolist()
         
         fig_interaction = go.Figure()
         
@@ -917,15 +917,15 @@ elif page == "📈 專案展示":
         with col1:
             st.markdown("""
             <div class='metric-card'>
-                <h4>模型解釋度</h4>
+                <h4>Model Interpretability</h4>
                 <div class='metric-value'>92.5%</div>
-                <div class='metric-delta'>高度相關</div>
+                <div class='metric-delta'>Highly Correlated</div>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
             <div class='metric-card'>
-                <h4>預測準確率</h4>
+                <h4>Prediction Accuracy</h4>
                 <div class='metric-value'>95.8%</div>
                 <div class='metric-delta'>↑3.2%</div>
             </div>
@@ -933,7 +933,7 @@ elif page == "📈 專案展示":
         with col3:
             st.markdown("""
             <div class='metric-card'>
-                <h4>參數最佳化</h4>
+                <h4>Parameter Optimization</h4>
                 <div class='metric-value'>98.3%</div>
                 <div class='metric-delta'>↑4.5%</div>
             </div>
