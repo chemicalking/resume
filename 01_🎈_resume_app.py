@@ -431,18 +431,12 @@ st.markdown("""
 
 # 图片处理函数
 def load_profile_image():
-    try:
-        img_path = "D:/curso/streamlit/resume/PHOTO.jpg"
-        if os.path.exists(img_path):
-            return Image.open(img_path)
-        else:
-            st.warning(f"無法找到個人照片，請確認 {img_path} 是否存在")
-            default_img = Image.new('RGB', (300, 300), color='#4A90E2')
-            return default_img
-    except Exception as e:
-        st.warning(f"載入個人照片時發生錯誤：{str(e)}")
-        default_img = Image.new('RGB', (300, 300), color='#4A90E2')
-        return default_img
+
+    from PIL import Image
+    image = Image.open('PHOTO.jpg')
+    img_caption = "Photo by Christina Brinza on Unsplash"
+    
+    return st.image(image, caption=img_caption)
 
 # 主要内容区域
 if page == "📊 個人總覽":
