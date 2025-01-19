@@ -126,8 +126,8 @@ def generate_gas_data():
     
     return data
 
-# @st.cache_data 
-@st.cache_data 
+# @st.cache
+@st.cache
 def train_gas_model(data):
     features = ['hour', 'day_of_week', 'month']
     data['hour'] = data['timestamp'].dt.hour
@@ -753,7 +753,7 @@ elif page == "📈 專案展示":
         """, unsafe_allow_html=True)
         
         # 生成模拟数据
-        @st.cache_data 
+        @st.cache
         def generate_process_data():
             n_samples = 1000
             np.random.seed(42)
@@ -997,7 +997,7 @@ elif page == "📈 專案展示":
         """, unsafe_allow_html=True)
         
         
-        @st.cache_data 
+        @st.cache
         def generate_yield_trend():
             dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')
             base_yield = 0.75
