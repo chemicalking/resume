@@ -127,7 +127,7 @@ def generate_gas_data():
     return data
 
 # @st.cache_data 
- @st.cache_data 
+@st.cache_data 
 def train_gas_model(data):
     features = ['hour', 'day_of_week', 'month']
     data['hour'] = data['timestamp'].dt.hour
