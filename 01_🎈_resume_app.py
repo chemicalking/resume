@@ -22,13 +22,22 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
 import time as tm  # 使用別名避免與 datetime.time 衝突
 import matplotlib.pyplot as plt
-
-
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 # pip freeze > requirements.txt
 # .\new_venv\Scripts\activate.ps1
 # cd "D:\curso\streamlit\resume"
 # streamlit run 01_🎈_resume_app.py
 #resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
+
+
+
+# 設置 Matplotlib 支持中文
+plt.rcParams['font.family'] = ['SimHei']  # 使用黑體字體
+plt.rcParams['axes.unicode_minus'] = False  # 避免負號顯示問題
+
+
+
 
 # 访问统计函数
 def get_visitor_ip():
