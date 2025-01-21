@@ -785,7 +785,7 @@ def show_project_page():
     # 顯示圖表
     st.pyplot(fig)
 
-    # 創建專案描述的表格
+   # 創建專案描述的表格
     st.markdown("### 各專案簡介")
     project_details = {
         "📊良率優化": "提升生產良率，降低成本。",
