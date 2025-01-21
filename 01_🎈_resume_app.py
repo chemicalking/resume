@@ -743,7 +743,7 @@ elif page == "🛠️ 技能專長":
 
 # 頁面內容
 elif page =="📈 專案展示":
-    st.markdown("##"📈 專案展示")
+    st.markdown(##"📈 專案展示")
 
     # 模擬數據
     projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析",
