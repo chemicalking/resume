@@ -785,60 +785,74 @@ def show_project_page():
     # 顯示圖表
     st.pyplot(fig)
 
-    # 創建專案描述的表格
-    st.markdown("### 各專案簡介")
-    project_details = {
-        "📊良率優化": "提升生產良率，降低成本。",
-        "🔬氣體監控": "實時監控氣體使用量，確保製程穩定。",
-        "🤖製程分析": "分析生產製程，挖掘改善空間。",
-        "🔧設備監控": "追蹤設備狀態，實現預防性維護。",
-        "📈品質管制": "運用統計方法監控產品品質。",
-        "📧異常解析": "快速定位並解決製程異常。",
-        "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
-    }
 
-    # 用表格顯示專案描述，添加斑馬線樣式
-    st.markdown("""
-    <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f4f4f4;
-        font-weight: bold;
-    }
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+  # 創建專案描述的表格
+st.markdown("### 各專案簡介")
+project_details = {
+    "📊良率優化": "提升生產良率，降低成本。",
+    "🔬氣體監控": "實時監控氣體使用量，確保製程穩定。",
+    "🤖製程分析": "分析生產製程，挖掘改善空間。",
+    "🔧設備監控": "追蹤設備狀態，實現預防性維護。",
+    "📈品質管制": "運用統計方法監控產品品質。",
+    "📧異常解析": "快速定位並解決製程異常。",
+    "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
+}
 
-    table_html = """
-    <table>
+# 用表格顯示專案描述，添加斑馬線樣式
+st.markdown("""
+<style>
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# 動態生成 HTML 表格
+table_html = """
+<table>
+    <thead>
         <tr>
             <th>專案名稱</th>
             <th>專案描述</th>
         </tr>
+    </thead>
+    <tbody>
+"""
+for project, description in project_details.items():
+    table_html += f"""
+    <tr>
+        <td>{project}</td>
+        <td>{description}</td>
+    </tr>
     """
-    for project, description in project_details.items():
-        table_html += f"""
-        <tr>
-            <td>{project}</td>
-            <td>{description}</td>
-        </tr>
-        """
-    table_html += "</table>"
-    st.markdown(table_html, unsafe_allow_html=True)
+table_html += """
+    </tbody>
+</table>
+"""
+
+# 渲染 HTML 表格
+st.markdown(table_html, unsafe_allow_html=True)
+
+
 
 # 主函數入口
 if __name__ == "__main__":
     show_project_page()
+
 elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown("## 🌟 個人特質")
