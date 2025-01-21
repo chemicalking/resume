@@ -792,42 +792,22 @@ def show_project_page():
         "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
     }
 
-    # 用表格顯示專案描述，添加斑馬線樣式
-    st.markdown("""
-    <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
+    # 使用 Streamlit 的 DataFrame 顯示專案描述
+    project_data = {
+        "專案名稱": list(project_details.keys()),
+        "專案描述": list(project_details.values())
     }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f4f4f4;
-        font-weight: bold;
-    }
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    df = pd.DataFrame(project_data)
 
-    table_html = """
-    <table>
-        <tr>
-            <th>專案名稱</th>
-            <th>專案描述</th>
-        </tr>
-    """
-    for project, description in project_details.items():
-        table_html 
+    # 使用 Streamlit 的表格展示
+    st.dataframe(df, hide_index=True, use_container_width=True)
 
+if __name__ == "__main__":
+    show_project_page()
 
-elif page == "🌟 個人特質":
+elif page == 🌟" 個人特質":
     # 頁面標題
-    st.markdown("## 🌟 個人特質")
+    st.markdown(## "🌟 個人特質")
 
     # 1. 專業特質圖片展示
     st.markdown("### 🎯 專業特質")
