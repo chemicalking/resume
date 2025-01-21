@@ -19,3 +19,4 @@ sklearn.preprocessing
 sklearn.linear_model
 tensorflow.keras.models
 tensorflow.keras.layers
+plotly
