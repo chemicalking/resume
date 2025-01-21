@@ -22,7 +22,6 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
 import time as tm  # 使用別名避免與 datetime.time 衝突
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 # pip freeze > requirements.txt
 # .\new_venv\Scripts\activate.ps1
@@ -752,15 +751,13 @@ elif page == "🛠️ 技能專長":
 
 
 
-# 創建條形圖頁面
-elif page == "📈 專案展示":
-    st.markdown("## 📈 專案展示")
-
+def show_project_progress():
     # 模擬數據
-    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析",
+                "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
-    # 創建條形圖展示項目進度
+    # 創建條形圖
     st.markdown("### 專案進度概覽")
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.barh(projects, progress, color='skyblue')
@@ -776,18 +773,27 @@ elif page == "📈 專案展示":
     # 顯示圖表
     st.pyplot(fig)
 
-    # 添加專案描述
-    st.markdown("""
-    ### 各專案簡介
-    - **📊良率優化**：提升生產良率，降低成本。
-    - **🔬氣體監控**：實時監控氣體使用量，確保製程穩定。
-    - **🤖製程分析**：分析生產製程，挖掘改善空間。
-    - **🔧設備監控**：追蹤設備狀態，實現預防性維護。
-    - **📈品質管制**：運用統計方法監控產品品質。
-    - **📧異常解析**：快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。
-    - **📈數據分析**：利用數據挖掘與可視化技術，提供決策支援。
-    """)
+    # 使用 Streamlit 的原生表格顯示專案描述
+    st.markdown("### 各專案簡介")
+    
+    # 創建數據框來顯示專案描述
+    project_data = {
+        "專案名稱": ["📊良率優化", "🔬氣體監控", "🤖製程分析", 
+                    "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"],
+        "專案描述": ["提升生產良率，降低成本。",
+                    "實時監控氣體使用量，確保製程穩定。",
+                    "分析生產製程，挖掘改善空間。",
+                    "追蹤設備狀態，實現預防性維護。",
+                    "運用統計方法監控產品品質。",
+                    "快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。",
+                    "利用數據挖掘與可視化技術，提供決策支援。"]
+    }
+    
+    # 使用 Streamlit 的 dataframe 顯示
+    st.dataframe(project_data, hide_index=True)
 
+if __name__ == "__main__":
+    show_project_progress()
 
 elif page == "🌟 個人特質":
     # 頁面標題
