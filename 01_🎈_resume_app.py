@@ -757,12 +757,11 @@ elif page == "📈 專案展示":
     st.write("以下是專案進度和描述的展示：")
 
 
-    # 模擬數據
-    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", 
-                "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
+     # 模拟数据
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
-    # 創建條形圖
+    # 创建条形图展示项目进度
     st.markdown("### 專案進度概覽")
     fig, ax = plt.subplots(figsize=(8, 5))
     
@@ -774,9 +773,12 @@ elif page == "📈 專案展示":
     ax.set_xlim(0, 100)
     ax.grid(axis='x', linestyle='--', alpha=0.7)
 
-    # 添加數據標籤
+    # 添加数据标签
     for i, v in enumerate(progress):
         ax.text(v + 2, i, f"{v}%", va='center')
+
+    # 显示图表
+    st.pyplot(fig)
 
     # 顯示圖表
     st.pyplot(fig)
