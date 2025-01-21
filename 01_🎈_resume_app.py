@@ -752,62 +752,50 @@ elif page == "🛠️ 技能專長":
 	
 
 
-elif page == "📈 專案展示":
-    st.markdown(## "📈 專案展示")
-    st.write("以下是專案進度和描述的展示：")
+# 設置頁面配置
+st.set_page_config(
+    page_title="專案展示",
+    page_icon="📈",
+    layout="wide"
+)
 
+# 頁面內容
+if "📈 專案展示":
+    st.title("專案展示")
 
-     # 模拟数据
-    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
+    # 模擬數據
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析",
+                "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
-    # 创建条形图展示项目进度
-    st.markdown("### 專案進度概覽")
+    # 創建簡單的條形圖
     fig, ax = plt.subplots(figsize=(8, 5))
-    
-    # 動態改變條形顏色
-    colors = ['green' if p > 80 else 'orange' if p > 60 else 'red' for p in progress]
-    ax.barh(projects, progress, color=colors)
+    ax.barh(projects, progress, color='skyblue')
     ax.set_title("專案進度概覽", fontsize=14, pad=10)
     ax.set_xlabel("進度完成百分比 (%)")
     ax.set_xlim(0, 100)
     ax.grid(axis='x', linestyle='--', alpha=0.7)
 
-    # 添加数据标签
+    # 添加數據標籤
     for i, v in enumerate(progress):
         ax.text(v + 2, i, f"{v}%", va='center')
-
-    # 显示图表
-    st.pyplot(fig)
 
     # 顯示圖表
     st.pyplot(fig)
 
-    # 創建專案描述的數據框
-    st.markdown("### 各專案簡介")
-    project_data = pd.DataFrame({
-        "專案名稱": projects,
-        "專案描述": [
-            "提升生產良率，降低成本。",
-            "實時監控氣體使用量，確保製程穩定。",
-            "分析生產製程，挖掘改善空間。",
-            "追蹤設備狀態，實現預防性維護。",
-            "運用統計方法監控產品品質。",
-            "快速定位並解決製程異常。",
-            "利用數據挖掘與可視化技術，提供決策支援。"
-        ]
-    })
+    # 添加專案描述
+    st.markdown("""
+    ### 各專案簡介
+    - **📊良率優化**：提升生產良率，降低成本。
+    - **🔬氣體監控**：實時監控氣體使用量，確保製程穩定。
+    - **🤖製程分析**：分析生產製程，挖掘改善空間。
+    - **🔧設備監控**：追蹤設備狀態，實現預防性維護。
+    - **📈品質管制**：運用統計方法監控產品品質。
+    - **📧異常解析**：快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。
+    - **📈數據分析**：利用數據挖掘與可視化技術，提供決策支援。
+    """)
 
-    # 使用 Streamlit 的 dataframe 顯示，設置樣式
-    st.dataframe(
-        project_data,
-        hide_index=True,
-        use_container_width=True,
-        column_config={
-            "專案名稱": st.column_config.Column(width=200),
-            "專案描述": st.column_config.Column(width="medium")
-        }
-    
+
 
 elif page == "🌟 個人特質":
     # 頁面標題
