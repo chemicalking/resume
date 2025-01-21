@@ -770,117 +770,34 @@ def render_pad4t_analysis():
 
     pca = PCA(n_components=2)
     principal_components = pca.fit_transform(X_scaled)
-    explained_variance = pca.explained_variance_ratio_
 
     # PCA 結果可視化
     fig, ax = plt.subplots()
-    ax.scatter(principal_components[:, 0], principal_components[:, 1], c='blue', alpha=0.6)
-    ax.set_title("PCA 結果")
-    ax.set_xlabel("PC1")
-    ax.set_ylabel("PC2")
+    ax.scatter(principal_components[:, 0], principal_components[:, 1], alpha=0.7)
+    ax.set_title('PCA 結果')
+    ax.set_xlabel('PC1')
+    ax.set_ylabel('PC2')
+    ax.grid(True)
     st.pyplot(fig)
 
     # VIP 分析
     reg = LinearRegression()
     reg.fit(X_scaled, y)
-    vip_scores = np.abs(reg.coef_) * explained_variance
-    vip_df = pd.DataFrame({'Feature': chambers, 'VIP Score': vip_scores})
+    vip_scores = np.abs(reg.coef_)
 
+    # VIP 結果可視化
+    vip_df = pd.DataFrame({'Feature': chambers, 'VIP Score': vip_scores})
     fig, ax = plt.subplots()
     ax.bar(vip_df['Feature'], vip_df['VIP Score'], color='skyblue')
-    ax.set_title("VIP 分析")
-    ax.set_ylabel("VIP Score")
-    st.pyplot(fig)
-
-# 機器學習模型氣體流量監控與占比分析
-def render_gas_monitoring():
-    st.markdown("## 🔬 氣體監控")
-    st.write("使用機器學習模型監控氣體流量並分析占比")
-
-    # 模擬氣體流量數據
-    gases = ['O2', 'N2', 'H2', 'Ar']
-    data = pd.DataFrame({
-        'Gas': np.random.choice(gases, 100),
-        'Flow Rate': np.random.normal(100, 5, 100)
-    })
-
-    # 氣體占比分析
-    pie_data = data['Gas'].value_counts()
-    fig, ax = plt.subplots()
-    ax.pie(pie_data, labels=pie_data.index, autopct='%1.1f%%', startangle=90)
-    ax.set_title("氣體占比分析")
-    st.pyplot(fig)
-
-    # 氣體流量監控
-    model = LinearRegression()
-    data['Index'] = np.arange(len(data))
-    X = data[['Index']]
-    y = data['Flow Rate']
-    model.fit(X, y)
-    predictions = model.predict(X)
-
-    # 即時監控可視化
-    fig, ax = plt.subplots()
-    ax.plot(data['Index'], data['Flow Rate'], label="測量流量", color="blue")
-    ax.plot(data['Index'], predictions, label="預測流量", color="orange", linestyle="--")
-    ax.set_title("氣體流量監控")
-    ax.set_xlabel("Index")
-    ax.set_ylabel("Flow Rate")
-    ax.legend()
-    st.pyplot(fig)
-
-# AI 模型預測氣體未來流量
-def render_gas_prediction():
-    st.markdown("## 📈 氣體流量預測")
-    st.write("使用 LSTM 預測未來 21 天的氣體流量")
-
-    # 模擬氣體流量數據
-    flow_data = np.random.normal(100, 5, 100)
-
-    # LSTM 模型構建
-    def create_model():
-        model = Sequential([
-            LSTM(50, activation='relu', input_shape=(10, 1)),
-            Dense(1)
-        ])
-        model.compile(optimizer='adam', loss='mse')
-        return model
-
-    # 數據準備
-    X = []
-    y = []
-    for i in range(len(flow_data) - 10):
-        X.append(flow_data[i:i+10])
-        y.append(flow_data[i+10])
-    X = np.array(X)
-    y = np.array(y)
-
-    model = create_model()
-    model.fit(X[:, :, np.newaxis], y, epochs=10, verbose=0)
-
-    # 預測未來 21 天
-    predictions = []
-    last_sequence = X[-1]
-    for _ in range(21):
-        pred = model.predict(last_sequence[np.newaxis, :, np.newaxis])
-        predictions.append(pred[0, 0])
-        last_sequence = np.append(last_sequence[1:], pred[0, 0])
-
-    # 結果可視化
-    fig, ax = plt.subplots()
-    ax.plot(range(len(flow_data)), flow_data, label="歷史數據", color="blue")
-    ax.plot(range(len(flow_data), len(flow_data) + 21), predictions, label="預測數據", color="orange")
-    ax.set_title("氣體流量未來 21 天預測")
-    ax.set_xlabel("天數")
-    ax.set_ylabel("流量")
-    ax.legend()
+    ax.set_title('VIP 分析')
+    ax.set_xlabel('Feature')
+    ax.set_ylabel('VIP Score')
+    ax.grid(axis='y')
     st.pyplot(fig)
 
 # 頁面選項
 pages = {
-    "PCA 與 VIP 分析": render_pad4t_analysis,
-    "氣體流量監控": render_gas_monitoring,
-    "氣體流量預測": render_gas_prediction
+    "PCA 與 VIP 分析": render_pad4t_analysis
 }
 
 # 使用 selectbox 選擇頁面
@@ -890,7 +807,6 @@ selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
 # 根據選擇的頁面執行對應的函數
 if selected_page in pages:
     pages[selected_page]()
-
 
 elif page == "🌟 個人特質":
     # 頁面標題
