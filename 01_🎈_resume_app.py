@@ -773,17 +773,24 @@ def render_pad4t_analysis():
     explained_variance = pca.explained_variance_ratio_
 
     # PCA 結果可視化
-    fig = px.scatter(x=principal_components[:, 0], y=principal_components[:, 1],
-                     title='PCA 結果', labels={'x': 'PC1', 'y': 'PC2'})
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots()
+    ax.scatter(principal_components[:, 0], principal_components[:, 1], c='blue', alpha=0.6)
+    ax.set_title("PCA 結果")
+    ax.set_xlabel("PC1")
+    ax.set_ylabel("PC2")
+    st.pyplot(fig)
 
     # VIP 分析
     reg = LinearRegression()
     reg.fit(X_scaled, y)
     vip_scores = np.abs(reg.coef_) * explained_variance
     vip_df = pd.DataFrame({'Feature': chambers, 'VIP Score': vip_scores})
-    vip_fig = px.bar(vip_df, x='Feature', y='VIP Score', title='VIP 分析')
-    st.plotly_chart(vip_fig)
+
+    fig, ax = plt.subplots()
+    ax.bar(vip_df['Feature'], vip_df['VIP Score'], color='skyblue')
+    ax.set_title("VIP 分析")
+    ax.set_ylabel("VIP Score")
+    st.pyplot(fig)
 
 # 機器學習模型氣體流量監控與占比分析
 def render_gas_monitoring():
@@ -799,8 +806,10 @@ def render_gas_monitoring():
 
     # 氣體占比分析
     pie_data = data['Gas'].value_counts()
-    fig = px.pie(values=pie_data, names=pie_data.index, title='氣體占比分析')
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots()
+    ax.pie(pie_data, labels=pie_data.index, autopct='%1.1f%%', startangle=90)
+    ax.set_title("氣體占比分析")
+    st.pyplot(fig)
 
     # 氣體流量監控
     model = LinearRegression()
@@ -811,9 +820,14 @@ def render_gas_monitoring():
     predictions = model.predict(X)
 
     # 即時監控可視化
-    fig = px.line(data, x='Index', y='Flow Rate', title='氣體流量監控')
-    fig.add_trace(go.Scatter(x=data['Index'], y=predictions, name='預測流量'))
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots()
+    ax.plot(data['Index'], data['Flow Rate'], label="測量流量", color="blue")
+    ax.plot(data['Index'], predictions, label="預測流量", color="orange", linestyle="--")
+    ax.set_title("氣體流量監控")
+    ax.set_xlabel("Index")
+    ax.set_ylabel("Flow Rate")
+    ax.legend()
+    st.pyplot(fig)
 
 # AI 模型預測氣體未來流量
 def render_gas_prediction():
@@ -853,10 +867,14 @@ def render_gas_prediction():
         last_sequence = np.append(last_sequence[1:], pred[0, 0])
 
     # 結果可視化
-    fig = px.line(y=np.append(flow_data, predictions),
-                  title='氣體流量未來 21 天預測',
-                  labels={'x': '天數', 'y': '流量'})
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots()
+    ax.plot(range(len(flow_data)), flow_data, label="歷史數據", color="blue")
+    ax.plot(range(len(flow_data), len(flow_data) + 21), predictions, label="預測數據", color="orange")
+    ax.set_title("氣體流量未來 21 天預測")
+    ax.set_xlabel("天數")
+    ax.set_ylabel("流量")
+    ax.legend()
+    st.pyplot(fig)
 
 # 頁面選項
 pages = {

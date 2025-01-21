@@ -20,3 +20,4 @@ sklearn.linear_model
 tensorflow.keras.models
 tensorflow.keras.layers
 plotly==5.24.1
+matplotlib.pyplot
