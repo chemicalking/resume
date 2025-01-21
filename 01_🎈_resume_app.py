@@ -464,12 +464,12 @@ if page == "📊 個人總覽":
             <span class='tech-badge'>📍製程整合</span>
             <span class='tech-badge'>📱六標準差</span>
             <span class='tech-badge'>📧智能工廠</span>
-            <span class='tech-badge'>📍製程整合</span>
-            <span class='tech-badge'>📱六標準差</span>
-            <span class='tech-badge'>📧智能工廠</span>
-            <span class='tech-badge'>📍製程整合</span>
-            <span class='tech-badge'>📱六標準差</span>
-            <span class='tech-badge'>📧智能工廠</span>
+            <span class='tech-badge'>📊良率優化</span>
+            <span class='tech-badge'>🔬氣體監控</span>
+            <span class='tech-badge'>🤖製程分析</span>
+            <span class='tech-badge'>🔧設備監控</span>
+            <span class='tech-badge'>📈品質管制</span>
+            <span class='tech-badge'>📧異常解析</span>
         </div>
         """, unsafe_allow_html=True)
 
