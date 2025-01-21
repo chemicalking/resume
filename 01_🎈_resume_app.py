@@ -429,7 +429,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 图片处理函数
+# 图片处理函数S
 def load_profile_image():
     try:
         img_path = Path("PHOTO.jpg")
@@ -458,18 +458,18 @@ if page == "📊 個人總覽":
 
         <div class='skill-card'>
             <h3>🎯 核心專長</h3>
-            <span class='tech-badge'>📍大數據分析</span>
-            <span class='tech-badge'>📱機器學習</span>
-            <span class='tech-badge'>📧深度學習</span>
-            <span class='tech-badge'>📍製程整合</span>
-            <span class='tech-badge'>📱六標準差</span>
-            <span class='tech-badge'>📧智能工廠</span>
-  	    <span class='tech-badge'>🤖製程分析</span>
-            <span class='tech-badge'>📊良率優化</span>
-            <span class='tech-badge'>🔬氣體監控</span>
-            <span class='tech-badge'>🔧設備監控"</span>
-            <span class='tech-badge'>📈品質管制</span>
-            <span class='tech-badge'>📧異常解析</span>
+            <span class='tech-badge'>📍 大數據分析</span>
+            <span class='tech-badge'>📱 機器學習</span>
+            <span class='tech-badge'>📧 深度學習</span>
+            <span class='tech-badge'>📍 製程整合</span>
+            <span class='tech-badge'>📱 六標準差</span>
+            <span class='tech-badge'>📧 智能工廠</span>
+  	    <span class='tech-badge'>🤖 製程分析</span>
+            <span class='tech-badge'>📊 良率優化</span>
+            <span class='tech-badge'>🔬 氣體監控</span>
+            <span class='tech-badge'>🔧 設備監控"</span>
+            <span class='tech-badge'>📈 品質管制</span>
+            <span class='tech-badge'>📧 異常解析</span>
         </div>
         """, unsafe_allow_html=True)
 
