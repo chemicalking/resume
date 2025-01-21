@@ -34,10 +34,7 @@ import matplotlib.font_manager as fm
 # 設置 Matplotlib 支持中文
 plt.rcParams['font.family'] = ['SimHei']  # 使用黑體字體
 plt.rcParams['axes.unicode_minus'] = False  # 避免負號顯示問題
- plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']  # 使用微軟正黑體
-	# 設置 Matplotlib 字體支持中文
-	plt.rcParams['font.family'] = ['SimHei']  # 使用黑體字體
-	plt.rcParams['axes.unicode_minus'] = False  # 防止負號顯示為方框
+plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']  # 使用微軟正黑體
 
 
 
