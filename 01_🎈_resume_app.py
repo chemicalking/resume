@@ -458,7 +458,7 @@ if page == "📊 個人總覽":
 
         <div class='skill-card'>
             <h3>🎯 核心專長</h3>
-            <span class='tech-badge'>📍B分析</span>
+            <span class='tech-badge'>📍大數據分析</span>
             <span class='tech-badge'>📱機器學習</span>
             <span class='tech-badge'>📧深度學習</span>
             <span class='tech-badge'>📍製程整合</span>
@@ -807,6 +807,8 @@ selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
 # 根據選擇的頁面執行對應的函數
 if selected_page in pages:
     pages[selected_page]()
+
+
 
 elif page == "🌟 個人特質":
     # 頁面標題
