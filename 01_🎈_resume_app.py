@@ -805,7 +805,7 @@ def show_project_page():
 if __name__ == "__main__":
     show_project_page()
 
-elif page == 🌟" 個人特質":
+elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown(## "🌟 個人特質")
 
