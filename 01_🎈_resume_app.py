@@ -738,12 +738,6 @@ elif page == "🛠️ 技能專長":
                 st.markdown(f"**{skill}**")
                 st.progress(level/100)
 
-# 設置頁面配置
-st.set_page_config(
-    page_title="專案展示",
-    page_icon="📈",
-    layout="wide"
-)
 
 # 頁面內容
 if "📈 專案展示":
