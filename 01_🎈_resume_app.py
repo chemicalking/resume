@@ -752,25 +752,27 @@ elif page == "🛠️ 技能專長":
 	
 
 
-# 設置頁面配置
-st.set_page_config(
-    page_title="專案展示",
-    page_icon="📈",
-    layout="wide"
-)
+# 設置 Matplotlib 字體支持中文
+plt.rcParams['font.family'] = ['SimHei']  # 使用黑體字體
+plt.rcParams['axes.unicode_minus'] = False  # 防止負號顯示為方框
 
-# 頁面內容
-if "📈 專案展示":
-    st.title("專案展示")
+# 專案展示頁面
+def show_project_page():
+    st.markdown("## 📈 專案展示")
+    st.write("以下是專案進度和描述的展示：")
 
     # 模擬數據
-    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析",
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", 
                 "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
-    # 創建簡單的條形圖
+    # 創建條形圖
+    st.markdown("### 專案進度概覽")
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.barh(projects, progress, color='skyblue')
+    
+    # 動態改變條形顏色
+    colors = ['green' if p > 80 else 'orange' if p > 60 else 'red' for p in progress]
+    ax.barh(projects, progress, color=colors)
     ax.set_title("專案進度概覽", fontsize=14, pad=10)
     ax.set_xlabel("進度完成百分比 (%)")
     ax.set_xlim(0, 100)
@@ -783,20 +785,60 @@ if "📈 專案展示":
     # 顯示圖表
     st.pyplot(fig)
 
-    # 添加專案描述
+    # 創建專案描述的表格
+    st.markdown("### 各專案簡介")
+    project_details = {
+        "📊良率優化": "提升生產良率，降低成本。",
+        "🔬氣體監控": "實時監控氣體使用量，確保製程穩定。",
+        "🤖製程分析": "分析生產製程，挖掘改善空間。",
+        "🔧設備監控": "追蹤設備狀態，實現預防性維護。",
+        "📈品質管制": "運用統計方法監控產品品質。",
+        "📧異常解析": "快速定位並解決製程異常。",
+        "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
+    }
+
+    # 用表格顯示專案描述，添加斑馬線樣式
     st.markdown("""
-    ### 各專案簡介
-    - **📊良率優化**：提升生產良率，降低成本。
-    - **🔬氣體監控**：實時監控氣體使用量，確保製程穩定。
-    - **🤖製程分析**：分析生產製程，挖掘改善空間。
-    - **🔧設備監控**：追蹤設備狀態，實現預防性維護。
-    - **📈品質管制**：運用統計方法監控產品品質。
-    - **📧異常解析**：快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。
-    - **📈數據分析**：利用數據挖掘與可視化技術，提供決策支援。
-    """)
+    <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
+    table_html = """
+    <table>
+        <tr>
+            <th>專案名稱</th>
+            <th>專案描述</th>
+        </tr>
+    """
+    for project, description in project_details.items():
+        table_html += f"""
+        <tr>
+            <td>{project}</td>
+            <td>{description}</td>
+        </tr>
+        """
+    table_html += "</table>"
+    st.markdown(table_html, unsafe_allow_html=True)
 
-
+# 主函數入口
+if __name__ == "__main__":
+    show_project_page()
 elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown("## 🌟 個人特質")
