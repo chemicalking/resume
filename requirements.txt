@@ -22,3 +22,4 @@ tensorflow.keras.models
 tensorflow.keras.layers
 #plotly>=5.0
 streamlit
+plotly plotly-express
