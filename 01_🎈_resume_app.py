@@ -837,11 +837,6 @@ def show_project_page():
     st.markdown(table_html, unsafe_allow_html=True)
 
 
-
-# 主函數入口
-if __name__ == "__main__":
-    show_project_page()
-
 elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown("## 🌟 個人特質")
