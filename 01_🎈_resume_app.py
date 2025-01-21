@@ -779,11 +779,7 @@ elif page == "📈 專案展示":
     - **📈數據分析**：利用數據挖掘與可視化技術，提供決策支援。
     """)
 
-# 假設存在其他功能需要調用 time.sleep
-def run_schedule():
-    while True:
-        # 模擬某個周期性任務
-        time.sleep(60)  # 每隔 60 秒執行一次
+
 elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown("## 🌟 個人特質")
