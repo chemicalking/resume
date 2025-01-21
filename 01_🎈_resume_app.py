@@ -898,8 +898,7 @@ st.markdown("## 📈 專案展示")
 selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
 
 # 根據選擇的頁面顯示內容
-if selected_page in pages:
-    pages[selected_page]() elif page == "🌟 個人特質":
+elif page == "🌟 個人特質":
     st.markdown("""
     <div class='skill-card'>
         <h3>專業特質</h3>
