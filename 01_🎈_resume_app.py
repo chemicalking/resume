@@ -20,6 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
+import time as tm  # 使用別名避免與 datetime.time 衝突
 
 # pip freeze > requirements.txt
 # .\new_venv\Scripts\activate.ps1
@@ -742,71 +743,6 @@ elif page == "🛠️ 技能專長":
             for skill, level in skills.items():
                 st.markdown(f"**{skill}**")
                 st.progress(level/100)
-
-# 設置頁面配置
-st.set_page_config(
-    page_title="專案分析展示",
-    page_icon="📈",
-    layout="wide"
-)
-
-# 主成分分析與 VIP 分析
-def render_pad4t_analysis():
-    st.markdown("## PCA 與 VIP 分析 - PAD4T 指標")
-    st.write("分析 PAD4T 與製程腔室參數之間的關係")
-
-    # 模擬數據
-    chambers = ['Chamber A', 'Chamber B', 'Chamber C', 'Chamber D']
-    data = pd.DataFrame({
-        'PAD4T': np.random.normal(100, 10, 100),
-        **{chamber: np.random.normal(50, 5, 100) for chamber in chambers}
-    })
-
-    # PCA 分析
-    X = data[chambers]
-    y = data['PAD4T']
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    pca = PCA(n_components=2)
-    principal_components = pca.fit_transform(X_scaled)
-
-    # PCA 結果可視化
-    fig, ax = plt.subplots()
-    ax.scatter(principal_components[:, 0], principal_components[:, 1], alpha=0.7)
-    ax.set_title('PCA 結果')
-    ax.set_xlabel('PC1')
-    ax.set_ylabel('PC2')
-    ax.grid(True)
-    st.pyplot(fig)
-
-    # VIP 分析
-    reg = LinearRegression()
-    reg.fit(X_scaled, y)
-    vip_scores = np.abs(reg.coef_)
-
-    # VIP 結果可視化
-    vip_df = pd.DataFrame({'Feature': chambers, 'VIP Score': vip_scores})
-    fig, ax = plt.subplots()
-    ax.bar(vip_df['Feature'], vip_df['VIP Score'], color='skyblue')
-    ax.set_title('VIP 分析')
-    ax.set_xlabel('Feature')
-    ax.set_ylabel('VIP Score')
-    ax.grid(axis='y')
-    st.pyplot(fig)
-
-# 頁面選項
-pages = {
-    "PCA 與 VIP 分析": render_pad4t_analysis
-}
-
-# 使用 selectbox 選擇頁面
-st.markdown("## 📊 功能展示")
-selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
-
-# 根據選擇的頁面執行對應的函數
-if selected_page in pages:
-    pages[selected_page]()
 
 
 
