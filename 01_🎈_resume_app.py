@@ -20,12 +20,24 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
-
+import time as tm  # 使用別名避免與 datetime.time 衝突
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 # pip freeze > requirements.txt
 # .\new_venv\Scripts\activate.ps1
 # cd "D:\curso\streamlit\resume"
 # streamlit run 01_🎈_resume_app.py
 #resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
+
+
+
+# 設置 Matplotlib 支持中文
+plt.rcParams['font.family'] = ['SimHei']  # 使用黑體字體
+plt.rcParams['axes.unicode_minus'] = False  # 避免負號顯示問題
+plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']  # 使用微軟正黑體
+
+
+
 
 # 访问统计函数
 def get_visitor_ip():
@@ -219,7 +231,7 @@ st.markdown("""
     
         /* 聯繫方式     */
     .stRadio > label {
-        font-size: 2em !important;
+        font-size: 2.5em !important;
         font-weight: 600 !important;
     }
             
@@ -458,18 +470,12 @@ if page == "📊 個人總覽":
 
         <div class='skill-card'>
             <h3>🎯 核心專長</h3>
-            <span class='tech-badge'>📍B分析</span>
+            <span class='tech-badge'>📍大數據分析</span>
             <span class='tech-badge'>📱機器學習</span>
             <span class='tech-badge'>📧深度學習</span>
             <span class='tech-badge'>📍製程整合</span>
             <span class='tech-badge'>📱六標準差</span>
             <span class='tech-badge'>📧智能工廠</span>
-            <span class='tech-badge'>📊良率優化</span>
-            <span class='tech-badge'>🔬氣體監控</span>
-            <span class='tech-badge'>🤖製程分析</span>
-            <span class='tech-badge'>🔧設備監控</span>
-            <span class='tech-badge'>📈品質管制</span>
-            <span class='tech-badge'>📧異常解析</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -743,424 +749,87 @@ elif page == "🛠️ 技能專長":
                 st.markdown(f"**{skill}**")
                 st.progress(level/100)
 
+	
+
+
 elif page == "📈 專案展示":
-    tab1, tab2, tab3 = st.tabs(["🤖 Process Analysis", "📊 Yield Optimization", "🔬 Gas Monitoring"])
-    
-    with tab1:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹 PAD4T Process Optimization Analysis</h3>
-            <ul>
-                <li>Multivariate Statistical Analysis (PCA/PLS)</li>
-                <li>Key Parameter Identification (VIP)</li>
-                <li>Process Parameter Optimization</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 生成模拟数据
-        @st.cache
-        def generate_process_data():
-            n_samples = 1000
-            np.random.seed(42)
-            
-            # 生成制程参数
-            data = pd.DataFrame({
-                'Temperature': np.random.normal(300, 10, n_samples),
-                'Pressure': np.random.normal(750, 20, n_samples),
-                'RF_Power': np.random.normal(1000, 50, n_samples),
-                'Gas_Flow': np.random.normal(100, 5, n_samples),
-                'Time': np.random.normal(60, 3, n_samples)
-            })
-            
-            # 生成PAD4T响应值（基于参数的线性组合加噪声）
-            data['PAD4T'] = (0.4 * (data['Temperature'] - 300) / 10 +
-                           0.3 * (data['Pressure'] - 750) / 20 +
-                           0.2 * (data['RF_Power'] - 1000) / 50 +
-                           0.1 * (data['Gas_Flow'] - 100) / 5 +
-                           np.random.normal(0, 0.1, n_samples))
-            
-            return data
-        
-        process_data = generate_process_data()
-        
-        # PCA分析
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.decomposition import PCA
-        
-        # 数据标准化
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(process_data.drop('PAD4T', axis=1))
-        
-        # PCA
-        pca = PCA()
-        X_pca = pca.fit_transform(X_scaled)
-        
-        # 显示PCA结果
-        st.markdown("### PCA 主成分分析")
-        
-        # 绘制解释方差比例
-        explained_variance_ratio = pca.explained_variance_ratio_
-        cumulative_variance_ratio = np.cumsum(explained_variance_ratio)
-        
-        fig_pca = go.Figure()
-        fig_pca.add_trace(go.Bar(
-            x=[f'PC{i+1}' for i in range(len(explained_variance_ratio))],
-            y=explained_variance_ratio * 100,
-            name='Explained Variance Ratio'
-        ))
-        fig_pca.add_trace(go.Scatter(
-            x=[f'PC{i+1}' for i in range(len(cumulative_variance_ratio))],
-            y=cumulative_variance_ratio * 100,
-            name='Cumulative Explained Variance Ratio',
-            mode='lines+markers'
-        ))
-        
-        fig_pca.update_layout(
-            title='PCA Explained Variance Ratio',
-            xaxis_title='Principal Component',
-            yaxis_title='Explained Variance Ratio (%)',
-            height=400
-        )
-        
-        st.plotly_chart(fig_pca, use_container_width=True)
-        
-        # PLS分析
-        from sklearn.cross_decomposition import PLSRegression
-        
-        # 计算VIP分数
-        def vip(model):
-            t = model.x_scores_
-            w = model.x_weights_
-            q = model.y_loadings_
-            
-            p, h = w.shape
-            vips = np.zeros((p,))
-            s = np.diag(t.T @ t @ q.T @ q).reshape(h, -1)
-            total_s = np.sum(s)
-            
-            for i in range(p):
-                weight = np.array([(w[i, j] / np.linalg.norm(w[:, j]))**2 for j in range(h)])
-                vips[i] = np.sqrt(p * (s.T @ weight) / total_s)
-            
-            return vips
-        
-        # PLS建模
-        pls = PLSRegression(n_components=2)
-        pls.fit(X_scaled, process_data['PAD4T'])
-        
-        # 计算VIP分数
-        vip_scores = vip(pls)
-        
-        # 显示VIP分析结果
-        st.markdown("### VIP Importance Analysis")
-        
-        vip_df = pd.DataFrame({
-            'Parameter': process_data.drop('PAD4T', axis=1).columns,
-            'VIP Score': vip_scores
-        })
-        vip_df = vip_df.sort_values('VIP Score', ascending=False)
-        
-        fig_vip = go.Figure()
-        fig_vip.add_trace(go.Bar(
-            x=vip_df['Parameter'],
-            y=vip_df['VIP Score']
-        ))
-        
-        fig_vip.add_shape(
-            type='line',
-            x0=-0.5,
-            y0=1,
-            x1=len(vip_df)-0.5,
-            y1=1,
-            line=dict(color='red', width=2, dash='dash')
-        )
-        
-        fig_vip.update_layout(
-            title='Parameter VIP Score',
-            xaxis_title='Process Parameter',
-            yaxis_title='VIP Score',
-            height=400
-        )
-        
-        st.plotly_chart(fig_vip, use_container_width=True)
-        
-        # 显示关键参数影响
-        st.markdown("### Key Parameter Impact Analysis")
-        
-        # 选择最重要的两个参数进行交互分析
-        top_params = vip_df['Parameter'].head(2).tolist()
-        
-        fig_interaction = go.Figure()
-        
-        # 创建散点图，颜色表示PAD4T值
-        fig_interaction.add_trace(go.Scatter(
-            x=process_data[top_params[0]],
-            y=process_data[top_params[1]],
-            mode='markers',
-            marker=dict(
-                size=8,
-                color=process_data['PAD4T'],
-                colorscale='Viridis',
-                showscale=True,
-                colorbar=dict(title='PAD4T')
-            ),
-            text=[f'PAD4T: {val:.3f}' for val in process_data['PAD4T']],
-            hoverinfo='text'
-        ))
-        
-        fig_interaction.update_layout(
-            title=f'{top_params[0]} vs {top_params[1]} 對 PAD4T 的影響',
-            xaxis_title=top_params[0],
-            yaxis_title=top_params[1],
-            height=500
-        )
-        
-        st.plotly_chart(fig_interaction, use_container_width=True)
-        
-        # 添加性能指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Model Interpretability</h4>
-                <div class='metric-value'>92.5%</div>
-                <div class='metric-delta'>Highly Correlated</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Prediction Accuracy</h4>
-                <div class='metric-value'>95.8%</div>
-                <div class='metric-delta'>↑3.2%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Parameter Optimization</h4>
-                <div class='metric-value'>98.3%</div>
-                <div class='metric-delta'>↑4.5%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # 添加分析流程图
-        st.markdown("### 分析流程")
-        st.markdown("""
-        ```mermaid
-        graph TD
-            A[數據收集] --> B[數據預處理]
-            B --> C[PCA分析]
-            B --> D[PLS建模]
-            C --> E[主成分解釋]
-            D --> F[VIP分析]
-            E --> G[參數篩選]
-            F --> G
-            G --> H[最佳化建議]
-            H --> I[製程調整]
-            I --> J[效果驗證]
-        ```
-            A[數據收集] --> B[即時監控]
-            B --> C[AI分析]
-            C --> D[預測模型]
-            D --> E[異常檢測]
-            E --> F{是否異常?}
-            F -->|是| G[觸發警報]
-            F -->|否| B
-            G --> H[自動調整]
-            H --> B
-        ```
-        """)
+    st.markdown("## 📈 專案展示")
+    st.write("以下是專案進度和描述的展示：")
 
-    with tab2:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹製程良率提升專案</h3>
-            <ul>
-                <li>專案背景：
-                    <ul>
-                        <li>製程良率波動大，需要系統性改善</li>
-                        <li>製程參數最佳化需求迫切</li>
-                    </ul>
-                </li>
-                <li>實施方法：
-                    <ul>
-                        <li>建立製程參數數據庫</li>
-                        <li>開發自動化分析工具</li>
-                        <li>制定製程改善策略</li>
-                    </ul>
-                </li>
-                <li>專案成果：
-                    <ul>
-                        <li>良率提升 15%</li>
-                        <li>製程穩定性提升 25%</li>
-                        <li>成本降低 10%</li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        
-        @st.cache
-        def generate_yield_trend():
-            dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')
-            base_yield = 0.75
-            trend = np.linspace(0, 0.15, len(dates))  # 15% 提升
-            noise = np.random.normal(0, 0.02, len(dates))
-            yields = base_yield + trend + noise
-            return pd.DataFrame({
-                'date': dates,
-                'yield': yields
-            })
-        
-        yield_data = generate_yield_trend()
-        
-        # 绘制良率趋势图
-        fig = px.line(yield_data, x='date', y='yield',
-                     title='製程良率提升趨勢',
-                     labels={'date': '日期', 'yield': '良率'},
-                     template='plotly_white')
-        
-        fig.add_hline(y=0.75, line_dash="dash", 
-                     annotation_text="基準良率",
-                     annotation_position="bottom right")
-        
-        fig.add_hline(y=0.90, line_dash="dash",
-                     annotation_text="目標良率",
-                     annotation_position="top right")
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # 添加关键指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("良率提升", "15%", "↑15%")
-        with col2:
-            st.metric("穩定性提升", "25%", "↑25%")
-        with col3:
-            st.metric("成本降低", "10%", "↓10%")
-    
-    with tab3:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹 智能氣體流量監控系統</h3>
-            <ul>
-                <li>即時監控多種製程氣體流量</li>
-                <li>AI模型預測流量趨勢</li>
-                <li>異常檢測與預警機制</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 生成数据
-        gas_data = generate_gas_data()
-        
-        # 训练模型
-        models, scalers = train_gas_model(gas_data)
-        
-        # 获取预测
-        predictions = predict_gas_flow(models, scalers)
-        
-        # 显示实时监控图表
-        st.markdown("### 即時氣體流量監控")
-        fig1 = go.Figure()
-        
-        recent_data = gas_data.tail(24)
-        for col in gas_data.columns:
-            if '_flow' in col:
-                fig1.add_trace(go.Scatter(
-                    x=recent_data['timestamp'],
-                    y=recent_data[col],
-                    name=col.replace('_flow', ''),
-                    mode='lines+markers'
-                ))
-        
-        fig1.update_layout(
-            title='24小時氣體流量趨勢',
-            xaxis_title='時間',
-            yaxis_title='流量 (sccm)',
-            height=500
-        )
-        
-        st.plotly_chart(fig1, use_container_width=True)
-        
-        # 显示预测结果
-        st.markdown("### AI預測分析")
-        fig2 = go.Figure()
-        
-        for col in predictions.columns:
-            if col != 'timestamp':
-                fig2.add_trace(go.Scatter(
-                    x=predictions['timestamp'],
-                    y=predictions[col],
-                    name=f'{col} (預測)',
-                    line=dict(dash='dash')
-                ))
-        
-        fig2.update_layout(
-            title='未來24小時氣體流量預測',
-            xaxis_title='時間',
-            yaxis_title='預測流量 (sccm)',
-            height=500
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-        
-        # 添加性能指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>監控氣體種類</h4>
-                <div class='metric-value'>5</div>
-                <div class='metric-delta'>完整覆蓋</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>預測準確率</h4>
-                <div class='metric-value'>95.8%</div>
-                <div class='metric-delta'>↑2.3%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>異常檢測率</h4>
-                <div class='metric-value'>99.2%</div>
-                <div class='metric-delta'>↑1.5%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # 添加流程图
-        st.markdown("### 智能監控流程")
-        st.markdown("""
-        ```mermaid
-        graph TD
-            A[數據收集] --> B[即時監控]
-            B --> C[AI分析]
-            C --> D[預測模型]
-            D --> E[異常檢測]
-            E --> F{是否異常?}
-            F -->|是| G[觸發警報]
-            F -->|否| B
-            G --> H[自動調整]
-            H --> B
-        ```
-        """)
+    # 模拟数据
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
+    progress = [85, 90, 80, 75, 88, 70, 95]
 
-elif page == "🌟 個人特質":
-    # 頁面標題
-    st.markdown(## "🌟 個人特質")
+    # 创建条形图展示项目进度
+    st.markdown("### 專案進度概覽")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.barh(projects, progress, color='skyblue')
+    ax.set_title("專案進度概覽", fontsize=14, pad=10)
+    ax.set_xlabel("進度完成百分比 (%)")
+    ax.set_xlim(0, 100)
+    ax.grid(axis='x', linestyle='--', alpha=0.7)
 
-    # 1. 專業特質圖片展示
-    st.markdown("### 🎯 專業特質")
-    st.write("""以下是我的專業特質展示，結合圖片和數據更直觀地呈現：""")
+    # 添加数据标签
+    for i, v in enumerate(progress):
+        ax.text(v + 2, i, f"{v}%", va='center')
+
+    # 显示图表
+    st.pyplot(fig)
+
+    # 创建项目描述的表格
+    st.markdown("### 各專案簡介")
+    project_details = {
+        "📊良率優化": "提升生產良率，降低成本。",
+        "🔬氣體監控": "實時監控氣體使用量，確保製程穩定。",
+        "🤖製程分析": "分析生產製程，挖掘改善空間。",
+        "🔧設備監控": "追蹤設備狀態，實現預防性維護。",
+        "📈品質管制": "運用統計方法監控產品品質。",
+        "📧異常解析": "快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。",
+        "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
+    }
+
+    # 用表格显示项目描述
+    st.markdown("""
+    <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    table_html = """
+    <table>
+        <tr>
+            <th>專案名稱</th>
+            <th>專案描述</th>
+        </tr>
+    """
+    for project, description in project_details.items():
+        table_html += f"""
+        <tr>
+            <td>{project}</td>
+            <td>{description}</td>
+        </tr>
+        """
+    table_html += "</table>"
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
+if page == "🌟 個人特質":
+    st.markdown("## 🌟 個人特質")
+    st.write("以下是我的專業特質展示，結合圖片和數據更直觀地呈現：")
+
     col1, col2, col3 = st.columns(3)
-
     with col1:
         st.image("https://via.placeholder.com/150", caption="製程整合經驗")
         st.markdown("- **紮實理論基礎**")
@@ -1232,7 +901,6 @@ elif page == "🌟 個人特質":
     ### 🏆 結語
     我擁有扎實的專業技術能力與出色的軟實力，能靈活應對不同挑戰，實現個人與團隊的目標！
     """)
-
 
 # 页脚
 st.markdown("""
