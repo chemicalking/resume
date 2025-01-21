@@ -739,92 +739,39 @@ elif page == "🛠️ 技能專長":
                 st.progress(level/100)
 
 # 設置頁面配置
-st.set_page_config(
-    page_title="專案分析展示",
-    page_icon="📈",
-    layout="wide"
-)
+st.set_page_config(page_title="專案展示", page_icon="📊", layout="wide")
 
-# 主成分分析與 VIP 分析
-def render_pad4t_analysis():
-    st.markdown("## PCA 與 VIP 分析 - PAD4T 指標")
-    st.write("分析 PAD4T 與製程腔室參數之間的關係")
+st.title("📈 專案展示")
 
-    # 模擬數據
-    chambers = ['Chamber A', 'Chamber B', 'Chamber C', 'Chamber D']
-    data = pd.DataFrame({
-        'PAD4T': np.random.normal(100, 10, 100),
-        **{chamber: np.random.normal(50, 5, 100) for chamber in chambers}
-    })
+# 創建六個專案的示例數據
+projects = ["良率優化", "氣體監控", "製程分析", "設備監控", "品質管制", "異常解析"]
+values = np.random.randint(70, 100, 6)
 
-    # PCA 分析
-    X = data[chambers]
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+# 創建柱狀圖
+fig, ax = plt.subplots(figsize=(10, 6))
+bars = ax.bar(projects, values)
 
-    pca = PCA(n_components=2)
-    principal_components = pca.fit_transform(X_scaled)
+# 自定義圖表
+ax.set_ylabel("完成度 (%)")
+ax.set_title("專案進度概覽")
+ax.set_ylim(0, 100)
 
-    # PCA 結果
-    fig, ax = plt.subplots()
-    ax.scatter(principal_components[:, 0], principal_components[:, 1], c='blue', alpha=0.5)
-    ax.set_title("PCA 結果")
-    ax.set_xlabel("PC1")
-    ax.set_ylabel("PC2")
-    st.pyplot(fig)
+# 在每個柱子上添加數值標籤
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height,
+            f'{height}%', ha='center', va='bottom')
 
-# 氣體流量監控
-def render_gas_monitoring():
-    st.markdown("## 氣體流量監控")
-    st.write("簡單監控氣體流量數據")
+# 添加網格線以提高可讀性
+ax.grid(axis='y', linestyle='--', alpha=0.7)
 
-    # 模擬數據
-    gases = ['O2', 'N2', 'H2', 'Ar']
-    data = pd.DataFrame({
-        'Gas': np.random.choice(gases, 100),
-        'Flow Rate': np.random.normal(100, 10, 100)
-    })
+# 在 Streamlit 中顯示圖表
+st.pyplot(fig)
 
-    # 氣體占比簡單圖表
-    counts = data['Gas'].value_counts()
-    fig, ax = plt.subplots()
-    ax.pie(counts, labels=counts.index, autopct='%1.1f%%', startangle=90)
-    ax.set_title("氣體占比")
-    st.pyplot(fig)
-
-# 氣體流量預測
-def render_gas_prediction():
-    st.markdown("## 氣體流量簡單預測")
-    st.write("假設性的氣體流量預測結果")
-
-    # 模擬數據
-    flow_data = np.random.normal(100, 10, 50)
-    predictions = flow_data + np.random.normal(0, 5, 50)
-
-    # 可視化
-    fig, ax = plt.subplots()
-    ax.plot(range(len(flow_data)), flow_data, label="實際數據", color='blue')
-    ax.plot(range(len(flow_data), len(flow_data) + len(predictions)), predictions, label="預測數據", color='orange')
-    ax.set_title("氣體流量預測")
-    ax.set_xlabel("時間")
-    ax.set_ylabel("流量")
-    ax.legend()
-    st.pyplot(fig)
-
-# 頁面選項
-pages = {
-    "PCA 與 VIP 分析": render_pad4t_analysis,
-    "氣體流量監控": render_gas_monitoring,
-    "氣體流量預測": render_gas_prediction
-}
-
-# 使用 selectbox 選擇頁面
-st.markdown("## 📊 功能展示")
-selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
-
-# 根據選擇的頁面執行對應的函數
-if selected_page in pages:
-    pages[selected_page]()
+# 為每個專案添加簡短描述
+for project in projects:
+    st.subheader(f"{project}")
+    st.write(f"{project}的簡短描述。這裡可以添加更多關於{project}的詳細信息。")
 
 elif page == "🌟 個人特質":
     # 頁面標題
