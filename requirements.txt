@@ -12,3 +12,10 @@ pyxlsb
 xlsxwriter
 beautifulsoup4
 schedule
+plotly.express
+plotly.graph_objects
+sklearn.decomposition
+sklearn.preprocessing
+sklearn.linear_model
+tensorflow.keras.models
+tensorflow.keras.layers
