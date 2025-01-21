@@ -20,6 +20,3 @@ sklearn.linear_model
 tensorflow.keras.models
 tensorflow.keras.layers
 plotly
-plotly.graph_objects
-plotly.express
-plotly.graph_objects
