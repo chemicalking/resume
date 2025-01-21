@@ -743,15 +743,15 @@ elif page == "🛠️ 技能專長":
 
 
 
+# 創建條形圖頁面
 elif page == "📈 專案展示":
     st.markdown("## 📈 專案展示")
-    st.write("以下是專案進度和描述的展示：")
 
-    # 模拟数据
+    # 模擬數據
     projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
-    # 创建条形图展示项目进度
+    # 創建條形圖展示項目進度
     st.markdown("### 專案進度概覽")
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.barh(projects, progress, color='skyblue')
@@ -760,61 +760,30 @@ elif page == "📈 專案展示":
     ax.set_xlim(0, 100)
     ax.grid(axis='x', linestyle='--', alpha=0.7)
 
-    # 添加数据标签
+    # 添加數據標籤
     for i, v in enumerate(progress):
         ax.text(v + 2, i, f"{v}%", va='center')
 
-    # 显示图表
+    # 顯示圖表
     st.pyplot(fig)
 
-    # 创建项目描述的表格
-    st.markdown("### 各專案簡介")
-    project_details = {
-        "📊良率優化": "提升生產良率，降低成本。",
-        "🔬氣體監控": "實時監控氣體使用量，確保製程穩定。",
-        "🤖製程分析": "分析生產製程，挖掘改善空間。",
-        "🔧設備監控": "追蹤設備狀態，實現預防性維護。",
-        "📈品質管制": "運用統計方法監控產品品質。",
-        "📧異常解析": "快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。",
-        "📈數據分析": "利用數據挖掘與可視化技術，提供決策支援。"
-    }
-
-    # 用表格显示项目描述
+    # 添加專案描述
     st.markdown("""
-    <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f4f4f4;
-        font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    ### 各專案簡介
+    - **📊良率優化**：提升生產良率，降低成本。
+    - **🔬氣體監控**：實時監控氣體使用量，確保製程穩定。
+    - **🤖製程分析**：分析生產製程，挖掘改善空間。
+    - **🔧設備監控**：追蹤設備狀態，實現預防性維護。
+    - **📈品質管制**：運用統計方法監控產品品質。
+    - **📧異常解析**：快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。
+    - **📈數據分析**：利用數據挖掘與可視化技術，提供決策支援。
+    """)
 
-    table_html = """
-    <table>
-        <tr>
-            <th>專案名稱</th>
-            <th>專案描述</th>
-        </tr>
-    """
-    for project, description in project_details.items():
-        table_html += f"""
-        <tr>
-            <td>{project}</td>
-            <td>{description}</td>
-        </tr>
-        """
-    table_html += "</table>"
-    st.markdown(table_html, unsafe_allow_html=True)
-
+# 假設存在其他功能需要調用 time.sleep
+def run_schedule():
+    while True:
+        # 模擬某個周期性任務
+        time.sleep(60)  # 每隔 60 秒執行一次
 elif page == "🌟 個人特質":
     # 頁面標題
     st.markdown("## 🌟 個人特質")
