@@ -21,6 +21,8 @@ from sklearn.decomposition import PCA
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
 import time as tm  # 使用別名避免與 datetime.time 衝突
+import matplotlib.pyplot as plt
+
 
 # pip freeze > requirements.txt
 # .\new_venv\Scripts\activate.ps1
