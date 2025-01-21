@@ -752,12 +752,9 @@ elif page == "🛠️ 技能專長":
 	
 
 
-def show_project_page():
-    st.markdown("## 📈 專案展示")
-    st.write("以下是專案進度和描述的展示：")
-
+def show_project_progress():
     # 模擬數據
-    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析", 
+    projects = ["📊良率優化", "🔬氣體監控", "🤖製程分析",
                 "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"]
     progress = [85, 90, 80, 75, 88, 70, 95]
 
@@ -777,29 +774,27 @@ def show_project_page():
     # 顯示圖表
     st.pyplot(fig)
 
-    # 使用 Streamlit 的 DataFrame 顯示專案描述
+    # 使用 Streamlit 的原生表格顯示專案描述
     st.markdown("### 各專案簡介")
     
-    # 創建數據框
+    # 創建數據框來顯示專案描述
     project_data = {
-        "專案名稱": projects,
-        "專案描述": [
-            "提升生產良率，降低成本。",
-            "實時監控氣體使用量，確保製程穩定。",
-            "分析生產製程，挖掘改善空間。",
-            "追蹤設備狀態，實現預防性維護。",
-            "運用統計方法監控產品品質。",
-            "快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。",
-            "利用數據挖掘與可視化技術，提供決策支援。"
-        ]
+        "專案名稱": ["📊良率優化", "🔬氣體監控", "🤖製程分析", 
+                    "🔧設備監控", "📈品質管制", "📧異常解析", "📈數據分析"],
+        "專案描述": ["提升生產良率，降低成本。",
+                    "實時監控氣體使用量，確保製程穩定。",
+                    "分析生產製程，挖掘改善空間。",
+                    "追蹤設備狀態，實現預防性維護。",
+                    "運用統計方法監控產品品質。",
+                    "快速定位並解決製程異常，通過結合即時監控與歷史數據進行問題診斷。",
+                    "利用數據挖掘與可視化技術，提供決策支援。"]
     }
     
-    # 使用 DataFrame 顯示
-    df = pd.DataFrame(project_data)
-    st.dataframe(df, hide_index=True, use_container_width=True)
+    # 使用 Streamlit 的 dataframe 顯示
+    st.dataframe(project_data, hide_index=True)
 
 if __name__ == "__main__":
-    show_project_page()
+    show_project_progress()
 
 
 
