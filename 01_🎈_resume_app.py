@@ -897,6 +897,10 @@ pages = {
 st.markdown("## 📈 專案展示")
 selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
 
+# 根據選擇的頁面執行對應的函數
+if selected_page in pages:
+    pages[selected_page]()
+
 # 根據選擇的頁面顯示內容
 elif page == "🌟 個人特質":
     st.markdown("""
