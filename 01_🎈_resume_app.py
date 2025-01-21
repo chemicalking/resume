@@ -596,7 +596,7 @@ elif page == "🎓 教育背景":
         <div class='education-card' style='font-size: 1.8em;'>
             <h3>國立台灣大學</h3>
             <p class='highlight'>2015年3月 - 2017年6月</p>
-            <h4>持續教育法律課程</h4>
+            <h4>第25期法律學分班</h4>
             <ul>
                 <li>專業課程：商業法律、智慧財產權、勞動法規</li>
                 <li>研究方向：科技產業法律實務應用</li>
