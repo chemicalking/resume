@@ -750,236 +750,210 @@ st.set_page_config(
     layout="wide"
 )
 
-# 定義頁面內容的函數
-def render_process_analysis():
-    st.markdown("## 🤖 製程分析")
-    st.write("專注於半導體製程參數分析與優化")
-    
-    # 模擬製程參數數據
-    dates = pd.date_range(start='2024-01-01', periods=30, freq='D')
-    parameters = pd.DataFrame({
-        'Date': dates,
-        'Temperature': np.random.normal(350, 10, 30),
-        'Pressure': np.random.normal(2.5, 0.2, 30),
-        'Flow Rate': np.random.normal(100, 5, 30)
-    })
-    
-    # 製程參數趨勢圖
-    fig = px.line(parameters, x='Date', y=['Temperature', 'Pressure', 'Flow Rate'],
-                  title='製程參數趨勢分析')
-    st.plotly_chart(fig)
-    
-    # KPI指標
-    col1, col2, col3 = st.columns(3)
-    col1.metric("製程穩定性", "98.5%", "1.2%")
-    col2.metric("參數一致性", "96.8%", "-0.5%")
-    col3.metric("良率", "94.2%", "2.1%")
+# 主成分分析與 VIP 分析
+def render_pad4t_analysis():
+    st.markdown("## PCA 與 VIP 分析 - PAD4T 指標")
+    st.write("分析 PAD4T 與製程腔室參數之間的關係")
 
-def render_yield_optimization():
-    st.markdown("## 📊 良率優化")
-    st.write("運用統計方法提升製程良率")
-    
-    # 模擬良率數據
-    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-    yield_data = pd.DataFrame({
-        'Month': months,
-        'Actual Yield': [92, 93, 95, 94, 96, 97],
-        'Target Yield': [95, 95, 95, 95, 95, 95]
+    # 模擬數據
+    chambers = ['Chamber A', 'Chamber B', 'Chamber C', 'Chamber D']
+    data = pd.DataFrame({
+        'PAD4T': np.random.normal(100, 10, 100),
+        **{chamber: np.random.normal(50, 5, 100) for chamber in chambers}
     })
-    
-    # 良率趨勢圖
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=months, y=yield_data['Actual Yield'],
-                            name='實際良率', mode='lines+markers'))
-    fig.add_trace(go.Scatter(x=months, y=yield_data['Target Yield'],
-                            name='目標良率', line=dict(dash='dash')))
-    fig.update_layout(title='良率趨勢分析')
+
+    # PCA 分析
+    X = data[chambers]
+    y = data['PAD4T']
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    pca = PCA(n_components=2)
+    principal_components = pca.fit_transform(X_scaled)
+    explained_variance = pca.explained_variance_ratio_
+
+    # PCA 結果可視化
+    fig = px.scatter(x=principal_components[:, 0], y=principal_components[:, 1],
+                     title='PCA 結果', labels={'x': 'PC1', 'y': 'PC2'})
     st.plotly_chart(fig)
 
+    # VIP 分析
+    reg = LinearRegression()
+    reg.fit(X_scaled, y)
+    vip_scores = np.abs(reg.coef_) * explained_variance
+    vip_df = pd.DataFrame({'Feature': chambers, 'VIP Score': vip_scores})
+    vip_fig = px.bar(vip_df, x='Feature', y='VIP Score', title='VIP 分析')
+    st.plotly_chart(vip_fig)
+
+# 機器學習模型氣體流量監控與占比分析
 def render_gas_monitoring():
     st.markdown("## 🔬 氣體監控")
-    st.write("即時監控與預測氣體流量變化")
-    
+    st.write("使用機器學習模型監控氣體流量並分析占比")
+
     # 模擬氣體流量數據
-    time_points = np.linspace(0, 24, 48)
-    flow_rate = 100 + 10*np.sin(time_points/4) + np.random.normal(0, 2, 48)
-    
-    # 氣體流量趨勢圖
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=time_points, y=flow_rate,
-                            fill='tozeroy', name='流量'))
-    fig.update_layout(title='氣體流量即時監控')
-    st.plotly_chart(fig)
-    
-    # 預警指標
-    if max(flow_rate) > 115:
-        st.warning('⚠️ 氣體流量超出正常範圍')
-
-def render_defect_analysis():
-    st.markdown("## 🔍 缺陷分析")
-    st.write("深入分析製程缺陷成因與分布")
-    
-    # 模擬缺陷數據
-    defect_types = ['Particle', 'Scratch', 'Pattern', 'Alignment', 'Others']
-    defect_counts = np.random.randint(10, 100, size=5)
-    
-    # 缺陷分布圖
-    fig = px.pie(values=defect_counts, names=defect_types,
-                 title='缺陷類型分布')
-    st.plotly_chart(fig)
-    
-    # 缺陷趨勢
-    defect_trend = pd.DataFrame({
-        'Week': range(1, 11),
-        'Defect Count': np.random.randint(50, 150, size=10)
+    gases = ['O2', 'N2', 'H2', 'Ar']
+    data = pd.DataFrame({
+        'Gas': np.random.choice(gases, 100),
+        'Flow Rate': np.random.normal(100, 5, 100)
     })
-    st.line_chart(defect_trend.set_index('Week'))
 
-def render_equipment_monitoring():
-    st.markdown("## 🔧 設備監控")
-    st.write("設備狀態即時監控與預測性維護")
-    
-    # 模擬設備狀態數據
-    equipment_status = {
-        'Chamber A': 'Running',
-        'Chamber B': 'Maintenance',
-        'Chamber C': 'Standby',
-        'Chamber D': 'Running'
-    }
-    
-    # 設備狀態顯示
-    for equip, status in equipment_status.items():
-        if status == 'Running':
-            st.success(f"{equip}: {status}")
-        elif status == 'Maintenance':
-            st.warning(f"{equip}: {status}")
-        else:
-            st.info(f"{equip}: {status}")
-    
-    # 設備運行時間統計
-    uptime_data = pd.DataFrame({
-        'Equipment': list(equipment_status.keys()),
-        'Uptime (hours)': np.random.randint(100, 1000, size=4)
-    })
-    st.bar_chart(uptime_data.set_index('Equipment'))
-
-def render_quality_control():
-    st.markdown("## 📈 品質管制")
-    st.write("製程品質監控與統計分析")
-    
-    # 模擬SPC數據
-    measurements = np.random.normal(100, 2, 100)
-    ucl = np.mean(measurements) + 3*np.std(measurements)
-    lcl = np.mean(measurements) - 3*np.std(measurements)
-    
-    # SPC管制圖
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(y=measurements, mode='lines+markers',
-                            name='測量值'))
-    fig.add_hline(y=ucl, line_dash="dash", line_color="red",
-                  annotation_text="UCL")
-    fig.add_hline(y=lcl, line_dash="dash", line_color="red",
-                  annotation_text="LCL")
-    fig.update_layout(title='SPC管制圖')
+    # 氣體占比分析
+    pie_data = data['Gas'].value_counts()
+    fig = px.pie(values=pie_data, names=pie_data.index, title='氣體占比分析')
     st.plotly_chart(fig)
 
-# 頁面選項動態生成
+    # 氣體流量監控
+    model = LinearRegression()
+    data['Index'] = np.arange(len(data))
+    X = data[['Index']]
+    y = data['Flow Rate']
+    model.fit(X, y)
+    predictions = model.predict(X)
+
+    # 即時監控可視化
+    fig = px.line(data, x='Index', y='Flow Rate', title='氣體流量監控')
+    fig.add_trace(go.Scatter(x=data['Index'], y=predictions, name='預測流量'))
+    st.plotly_chart(fig)
+
+# AI 模型預測氣體未來流量
+def render_gas_prediction():
+    st.markdown("## 📈 氣體流量預測")
+    st.write("使用 LSTM 預測未來 21 天的氣體流量")
+
+    # 模擬氣體流量數據
+    flow_data = np.random.normal(100, 5, 100)
+
+    # LSTM 模型構建
+    def create_model():
+        model = Sequential([
+            LSTM(50, activation='relu', input_shape=(10, 1)),
+            Dense(1)
+        ])
+        model.compile(optimizer='adam', loss='mse')
+        return model
+
+    # 數據準備
+    X = []
+    y = []
+    for i in range(len(flow_data) - 10):
+        X.append(flow_data[i:i+10])
+        y.append(flow_data[i+10])
+    X = np.array(X)
+    y = np.array(y)
+
+    model = create_model()
+    model.fit(X[:, :, np.newaxis], y, epochs=10, verbose=0)
+
+    # 預測未來 21 天
+    predictions = []
+    last_sequence = X[-1]
+    for _ in range(21):
+        pred = model.predict(last_sequence[np.newaxis, :, np.newaxis])
+        predictions.append(pred[0, 0])
+        last_sequence = np.append(last_sequence[1:], pred[0, 0])
+
+    # 結果可視化
+    fig = px.line(y=np.append(flow_data, predictions),
+                  title='氣體流量未來 21 天預測',
+                  labels={'x': '天數', 'y': '流量'})
+    st.plotly_chart(fig)
+
+# 頁面選項
 pages = {
-    "🤖 製程分析": render_process_analysis,
-    "📊 良率優化": render_yield_optimization,
-    "🔬 氣體監控": render_gas_monitoring,
-    "🔍 缺陷分析": render_defect_analysis,
-    "🔧 設備監控": render_equipment_monitoring,
-    "📈 品質管制": render_quality_control
+    "PCA 與 VIP 分析": render_pad4t_analysis,
+    "氣體流量監控": render_gas_monitoring,
+    "氣體流量預測": render_gas_prediction
 }
 
 # 使用 selectbox 選擇頁面
-st.markdown("## 📈 專案展示")
+st.markdown("## 📊 功能展示")
 selected_page = st.selectbox("選擇展示的項目：", list(pages.keys()))
 
 # 根據選擇的頁面執行對應的函數
 if selected_page in pages:
     pages[selected_page]()
 
-# 根據選擇的頁面顯示內容
+
 elif page == "🌟 個人特質":
-    st.markdown("""
-    <div class='skill-card'>
-        <h3>專業特質</h3>
-        <ul>
-            <li>深入的半導體製程知識
-                <ul>
-                    <li>豐富的製程整合經驗</li>
-                    <li>紮實的理論基礎</li>
-                    <li>持續學習新技術</li>
-                </ul>
-            </li>
-            <li>強大的問題分析能力
-                <ul>
-                    <li>系統性思維方式</li>
-                    <li>快速定位問題根因</li>
-                    <li>提供有效解決方案</li>
-                </ul>
-            </li>
-            <li>創新思維與解決方案
-                <ul>
-                    <li>開發自動化分析工具</li>
-                    <li>優化工作流程</li>
-                    <li>提升工作效率</li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-    
-    <div class='skill-card'>
-        <h3>軟實力</h3>
-        <ul>
-            <li>優秀的團隊合作能力
-                <ul>
-                    <li>跨部門溝通協調</li>
-                    <li>團隊建設與管理</li>
-                    <li>知識分享與培訓</li>
-                </ul>
-            </li>
-            <li>高效的專案管理能力
-                <ul>
-                    <li>目標設定與追蹤</li>
-                    <li>資源調配與管理</li>
-                    <li>風險評估與控制</li>
-                </ul>
-            </li>
-            <li>抗壓性與適應力
-                <ul>
-                    <li>面對挑戰保持冷靜</li>
-                    <li>快速適應新環境</li>
-                    <li>積極正向態度</li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # 添加能力评分展示
+    # 頁面標題
+    st.markdown("## 🌟 個人特質")
+
+    # 1. 專業特質圖片展示
+    st.markdown("### 🎯 專業特質")
+    st.write("以下是我的專業特質展示，結合圖片和數據更直觀地呈現：")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.image("https://via.placeholder.com/150", caption="製程整合經驗")
+        st.markdown("- **紮實理論基礎**")
+        st.markdown("- **持續學習新技術**")
+
+    with col2:
+        st.image("https://via.placeholder.com/150", caption="問題分析能力")
+        st.markdown("- **系統性思維方式**")
+        st.markdown("- **快速定位問題根因**")
+        st.markdown("- **提供有效解決方案**")
+
+    with col3:
+        st.image("https://via.placeholder.com/150", caption="創新與解決方案")
+        st.markdown("- **開發自動化工具**")
+        st.markdown("- **優化工作流程**")
+        st.markdown("- **提升效率與效益**")
+
+    # 2. 軟實力的雷達圖展示
+    st.markdown("### 🌟 軟實力評估")
+    st.write("以下是我的軟實力雷達圖分析，展示多項軟技能的評估結果：")
+
+    # 軟實力數據
+    radar_data = {
+        "技能": ["團隊合作", "專案管理", "抗壓性", "適應力", "溝通能力"],
+        "評分": [90, 92, 88, 95, 85]
+    }
+    radar_df = pd.DataFrame(radar_data)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=radar_df["評分"],
+        theta=radar_df["技能"],
+        fill='toself',
+        name='軟實力'
+    ))
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100])
+        ),
+        title="軟實力雷達圖"
+    )
+    st.plotly_chart(fig)
+
+    # 3. 綜合能力評估圖表
     st.markdown("### 💫 綜合能力評估")
-    
-    # 创建评分数据
+    st.write("以下是我的綜合能力，通過數據視覺化展示評估結果：")
+
+    # 綜合能力數據
     abilities = {
         "領導力": {"score": 90, "description": "團隊管理、專案領導、目標達成"},
         "創新力": {"score": 88, "description": "流程優化、工具開發、問題解決"},
         "執行力": {"score": 95, "description": "專案管理、時程控制、結果導向"},
         "學習力": {"score": 92, "description": "技術更新、知識吸收、自我提升"}
     }
-    
-    # 使用列显示能力评分
+
+    # 使用列顯示能力評分
     for ability, data in abilities.items():
         st.markdown(f"#### {ability}")
         col1, col2 = st.columns([1, 3])
         with col1:
             st.markdown(f"**評分：{data['score']}**")
         with col2:
-            st.progress(data['score']/100)
+            st.progress(data['score'] / 100)
         st.markdown(f"*{data['description']}*")
         st.markdown("---")
+
+    # 添加總結
+    st.markdown("""
+    ### 🏆 結語
+    我擁有扎實的專業技術能力與出色的軟實力，能靈活應對不同挑戰，實現個人與團隊的目標！
+    """)
 
 # 页脚
 st.markdown("""
