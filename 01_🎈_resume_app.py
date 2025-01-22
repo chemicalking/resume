@@ -496,7 +496,7 @@ elif page == "💼 專業經歷":
         </div>
         
         <div class='experience-card'>
-            <h3>台積電 (TSMC)</h3>
+            <h3>台積電 (tsmc)</h3>
             <p class='highlight'>2014年3月 - 2014年12月</p>
             <h4>設備工程師</h4>
             <ul>
