@@ -12,4 +12,3 @@ pyxlsb
 xlsxwriter
 beautifulsoup4
 schedule
-matplotlib
