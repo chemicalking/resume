@@ -112,7 +112,7 @@ def send_daily_report(visitor_data, today):
     
     # 發送郵件
     msg = MIMEMultipart()
-    msg['From'] = 'your_email@example.com'
+    msg['From'] = 'Teriyaki0730@gmail.com'
     msg['To'] = 'lauandhang@yahoo.com.tw'
     msg['Subject'] = f'簡歷網站訪問統計報告 - {today}'
     msg.attach(MIMEText(email_content, 'plain'))
@@ -702,7 +702,7 @@ st.markdown("""
 # 圖片處理函數
 def load_profile_image():
     try:
-        img_path = Path("PHOTO.jpg")
+        img_path = "PHOTO.jpg"
         if img_path.exists():
             return Image.open(img_path)
         else:
