@@ -1,28 +1,29 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from PIL import Image
-import plotly.graph_objects as go
 import plotly.express as px
-from pathlib import Path
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from statsmodels.tsa.seasonal import seasonal_decompose
 import datetime
+import json
+import os
+from PIL import Image
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import json
 import requests
 from datetime import datetime
 import schedule
 import threading
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
 from sklearn.linear_model import LinearRegression
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
 from config import (
     PAGE_CONFIG,
     CHART_CONFIG,
@@ -38,21 +39,9 @@ from utils import visitor_tracker
 # streamlit run 01_🎈_resume_app.py
 #resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
 
-# 設置頁面配置
-st.set_page_config(
-    page_title="劉晉亨的個人簡歷 | Patrick Liou Resume",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# 設置中文字體
-plt.rcParams['font.sans-serif'] = CHART_CONFIG["font_family"]
-plt.rcParams['axes.unicode_minus'] = False
-mpl.rcParams['font.family'] = CHART_CONFIG["font_family"]
-
-# 訪問統計函數
+# 訪問者追蹤函數
 def get_visitor_ip():
+    """獲取訪問者IP地址"""
     try:
         response = requests.get('https://api.ipify.org?format=json')
         return response.json()['ip']
@@ -216,6 +205,11 @@ current_time = datetime.now()
 if current_time.hour == 20 and (current_time - st.session_state.last_run).seconds >= 3600:
     send_daily_report(load_visitor_data(), current_time.strftime('%Y-%m-%d'))
     st.session_state.last_run = current_time
+
+# 設置中文字體
+plt.rcParams['font.sans-serif'] = CHART_CONFIG["font_family"]
+plt.rcParams['axes.unicode_minus'] = False
+mpl.rcParams['font.family'] = CHART_CONFIG["font_family"]
 
 # 全局樣式
 st.markdown("""
