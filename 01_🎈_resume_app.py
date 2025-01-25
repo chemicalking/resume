@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from PIL import Image
 import plotly.graph_objects as go
 import plotly.express as px
-import numpy as np
-import os
 from pathlib import Path
 import datetime
 import smtplib
@@ -12,7 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
 import requests
-from datetime import datetime, time
+from datetime import datetime
 import schedule
 import threading
 from sklearn.ensemble import RandomForestRegressor
@@ -20,14 +19,39 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_val_predict
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 
+from config import (
+    PAGE_CONFIG,
+    CHART_CONFIG,
+    DB_CONFIG,
+    MAIL_CONFIG,
+    MODEL_CONFIG
+)
+
+from utils import visitor_tracker
 # pip freeze > requirements.txt
-# .\new_venv\Scripts\activate.ps1
+# .\venv\Scripts\activate.ps1
 # cd "D:\curso\streamlit\resume"
 # streamlit run 01_🎈_resume_app.py
 #resume-zgurc7bvpu98gu2n3u2uqw.streamlit.app
 
-# 访问统计函数
+# 設置頁面配置
+st.set_page_config(
+    page_title="劉晉亨的個人簡歷 | Patrick Liou Resume",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# 設置中文字體
+plt.rcParams['font.sans-serif'] = CHART_CONFIG["font_family"]
+plt.rcParams['axes.unicode_minus'] = False
+mpl.rcParams['font.family'] = CHART_CONFIG["font_family"]
+
+# 訪問統計函數
 def get_visitor_ip():
     try:
         response = requests.get('https://api.ipify.org?format=json')
@@ -68,7 +92,7 @@ def update_visitor_count():
     save_visitor_data(visitor_data)
     
     # 檢查是否需要發送報告
-    current_time = datetime.now().time()
+    current_time = datetime.now()
     if current_time.hour == 20 and current_time.minute == 0:
         send_daily_report(visitor_data, today)
     
@@ -104,9 +128,11 @@ def send_daily_report(visitor_data, today):
     msg['Subject'] = f'簡歷網站訪問統計報告 - {today}'
     msg.attach(MIMEText(email_content, 'plain'))
 
-# 添加气体流量监控和AI预测功能
+# 添加氣體流量監控和AI預測功能
+@st.cache_data(ttl=3600)
 def generate_gas_data():
-    dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='H')
+    # 減少生成的資料量
+    dates = pd.date_range(start='2023-01-01', periods=1000, freq='H')  # 只生成1000筆資料
     n_samples = len(dates)
     
     base_flow = {
@@ -127,8 +153,12 @@ def generate_gas_data():
     return data
 
 # @st.cache
-@st.cache
+@st.cache_data(ttl=3600)  # 設置1小時的快取時間
 def train_gas_model(data):
+    # 限制資料量
+    if len(data) > 1000:
+        data = data.tail(1000)  # 只使用最近1000筆資料
+        
     features = ['hour', 'day_of_week', 'month']
     data['hour'] = data['timestamp'].dt.hour
     data['day_of_week'] = data['timestamp'].dt.dayofweek
@@ -145,7 +175,7 @@ def train_gas_model(data):
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model = RandomForestRegressor(n_estimators=50, random_state=42)  # 減少樹的數量
         model.fit(X_scaled, y)
         
         models[gas] = model
@@ -174,28 +204,23 @@ def predict_gas_flow(models, scalers, hours=24):
     
     return predictions
 
-# 启动定时任务
+# 啟動定時任務
 def run_schedule():
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+    schedule.run_pending()
+    
+# 改用 Streamlit 的 scheduled_rerun 來處理定時任務
+if 'last_run' not in st.session_state:
+    st.session_state.last_run = datetime.now()
 
-# 设置每天20:00发送报告
-schedule.every().day.at("20:00").do(lambda: send_daily_report(load_visitor_data(), datetime.now().strftime('%Y-%m-%d')))
-threading.Thread(target=run_schedule, daemon=True).start()
+current_time = datetime.now()
+if current_time.hour == 20 and (current_time - st.session_state.last_run).seconds >= 3600:
+    send_daily_report(load_visitor_data(), current_time.strftime('%Y-%m-%d'))
+    st.session_state.last_run = current_time
 
-# 页面配置
-st.set_page_config(
-    page_title="劉晉亨的個人簡歷 | Patrick Liou Resume",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# 设置全局样式
+# 全局樣式
 st.markdown("""
 <style>
-    /* 主题设置 */
+    /* 主題設定 */
     :root {
         --primary-color: #4A90E2;
         --secondary-color: #50E3C2;
@@ -204,13 +229,13 @@ st.markdown("""
         --highlight-color: #2C7BE5;
     }
     
-    /* 深色主题 */
+    /* 深色主題 */
     [data-theme="light"] {
         --background-color: #0E1117;
         --text-color: #E0E0E0;
     }
     
-    /* 导航菜单样式 */
+    /* 導航菜單樣式 */
     .stRadio > label {
         font-size: 1.8em !important;
         font-weight: 600 !important;
@@ -223,7 +248,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
             
-    /* 技能标签样式 */
+    /* 技能標籤樣式 */
     .tech-badge {
         background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
         padding: 15px 30px;
@@ -236,7 +261,7 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
-    /* 技能树样式 */
+    /* 技能樹樣式 */
     .skill-tree {
         margin: 20px 0;
         padding: 20px;
@@ -250,7 +275,7 @@ st.markdown("""
         padding-left: 30px;
     }
     
-    /* 经历卡片样式 */
+    /* 經歷卡片樣式 */
     .experience-card {
         padding: 25px;
         margin: 15px 0;
@@ -272,7 +297,7 @@ st.markdown("""
         font-size: 1.8em !important;
     }
     
-    /* 访问计数器样式 */
+    /* 訪問計數器樣式 */
     .visitor-counter {
         position: fixed;
         top: 100px;
@@ -285,7 +310,7 @@ st.markdown("""
         z-index: 1000;
     }
     
-    /* 防复制样式 */
+    /* 防複製樣式 */
     * {
         user-select: none !important;
         -webkit-user-select: none !important;
@@ -293,7 +318,7 @@ st.markdown("""
         -ms-user-select: none !important;
     }
     
-    /* 水印样式 */
+    /* 水印樣式 */
     .watermark {
         position: fixed;
         top: 0;
@@ -311,7 +336,7 @@ st.markdown("""
         z-index: 9999;
     }
     
-    /* 标题和文本样式 */
+    /* 標題和文本樣式 */
     h1 {
         font-size: 3em !important;
     }
@@ -328,14 +353,14 @@ st.markdown("""
         font-size: 1.8em !important;
     }
     
-    /* 图表标题样式 */
+    /* 圖表標題樣式 */
     .plotly .gtitle {
         font-size: 2em !important;
     }
 </style>
 
 <script>
-    // 防复制功能
+    // 防複製功能
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
         if (e.ctrlKey || e.keyCode === 44) e.preventDefault();
@@ -350,53 +375,307 @@ st.markdown("""
 </script>
 """, unsafe_allow_html=True)
 
-# 在侧边栏添加主题选择
+# 自定義 CSS 樣式
+st.markdown("""
+<style>
+    /* 調整選擇框大小 */
+    .stSelectbox {
+        min-width: 300px !important;
+    }
+    
+    .stSelectbox > div {
+        min-height: 45px !important;
+    }
+    
+    /* 調整容器寬度 */
+    .element-container, .stMarkdown {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* 調整卡片樣式 */
+    .skill-card, .experience-card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+        width: 100%;
+    }
+    
+    /* 調整圖表容器 */
+    .stPlotlyChart, .stPlot {
+        min-height: 400px;
+        width: 100% !important;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* 調整標題樣式 */
+    h1, h2, h3 {
+        margin: 1.5rem 0;
+        color: #1e88e5;
+    }
+    
+    /* 調整技能標籤樣式 */
+    .tech-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.3rem;
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        font-size: 1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 添加更多樣式
+st.markdown("""
+<style>
+    /* 個人資料區塊樣式 */
+    .profile-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .profile-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #1e88e5;
+    }
+    
+    .profile-section h2 {
+        font-size: 1.5rem;
+        color: #424242;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* 技能標籤容器 */
+    .tech-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    /* 聯繫方式樣式 */
+    .contact-section {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .contact-section p {
+        margin: 0.5rem 0;
+        font-size: 1.1rem;
+        color: #424242;
+    }
+    
+    /* 工作經驗區塊樣式 */
+    .experience-section {
+        margin-top: 2rem;
+    }
+    
+    .experience-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .experience-card h3 {
+        color: #1e88e5;
+        margin-bottom: 0.5rem;
+    }
+    
+    .experience-card h4 {
+        color: #424242;
+        margin: 0.5rem 0;
+    }
+    
+    .experience-card li {
+        font-size: 1.8em !important;
+    }
+    
+    /* 訪問計數器樣式 */
+    .visitor-counter {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: white;
+        font-size: 1.6em !important;
+        z-index: 1000;
+    }
+    
+    /* 防複製樣式 */
+    * {
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+    }
+    
+    /* 水印樣式 */
+    .watermark {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(74, 144, 226, 0.1),
+            rgba(74, 144, 226, 0.1) 10px,
+            rgba(80, 227, 194, 0.1) 10px,
+            rgba(80, 227, 194, 0.1) 20px
+        );
+        z-index: 9999;
+    }
+    
+    /* 標題和文本樣式 */
+    h1 {
+        font-size: 3em !important;
+    }
+    
+    h2 {
+        font-size: 2.5em !important;
+    }
+    
+    h3 {
+        font-size: 2.2em !important;
+    }
+    
+    p, li {
+        font-size: 1.8em !important;
+    }
+    
+    /* 圖表標題樣式 */
+    .plotly .gtitle {
+        font-size: 2em !important;
+    }
+</style>
+
+<script>
+    // 防複製功能
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey || e.keyCode === 44) e.preventDefault();
+    });
+    
+    // 添加水印
+    window.onload = function() {
+        const watermark = document.createElement('div');
+        watermark.className = 'watermark';
+        document.body.appendChild(watermark);
+    };
+</script>
+""", unsafe_allow_html=True)
+
+# 添加選項欄位樣式
+st.markdown("""
+<style>
+    /* 選項欄位樣式 */
+    .tech-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+    }
+    
+    .tech-list li {
+        background-color: #f8f9fa;
+        margin: 0.5rem 0;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        color: #1e88e5;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .tech-list li:hover {
+        background-color: #e3f2fd;
+        transform: translateX(5px);
+    }
+    
+    .tech-category {
+        font-size: 1.2rem;
+        color: #424242;
+        margin: 1.5rem 0 1rem 0;
+        font-weight: 500;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 側邊欄設置
 with st.sidebar:
     st.markdown("### 🎯 導航菜單")
     page = st.radio(
         "",
-        ["📊 個人總覽", "💼 專業經歷", "🎓 教育背景", "🛠️ 技能專長", "📈 專案展示", "🌟 個人特質"],
-        index=0
+        ["📊 個人總覽", "💼 專業經歷", "🎓 教育背景", "🛠️ 技能專長", 
+         "🌟 個人特質", "📈 專案展示", "🔬 專案分析"],
+        key="navigation_menu"
     )
     
     st.markdown("---")
+    
+    # 語言切換
     st.markdown("### 🌐 語言切換")
-    language = st.selectbox("", ["繁體中文", "English"])
+    language = st.selectbox(
+        "",
+        ["繁體中文", "English"],
+        key="language_selector",
+        help="選擇顯示語言"
+    )
     
     st.markdown("---")
+    
+    # 主題設置
     st.markdown("### 🎨 主題設置")
-    theme = st.selectbox("", ["淺色主題", "深色主題"], index=0)
+    theme = st.selectbox(
+        "",
+        ["淺色主題", "深色主題"],
+        key="theme_selector",
+        help="選擇顯示主題"
+    )
+    
+    # 主題切換邏輯
     if theme == "深色主題":
         st.markdown("""
         <style>
+            /* 深色主題樣式 */
             :root {
                 --primary-color: #4A90E2;
-                --secondary-color: #50E3C2;
-                --background-color: #0E1117;
+                --background-color: #1E1E1E;
                 --text-color: #E0E0E0;
-                --highlight-color: #50E3C2;
+            }
+            
+            .stApp {
+                background-color: var(--background-color);
+                color: var(--text-color);
+            }
+            
+            .stSelectbox select {
+                background-color: var(--background-color);
+                color: var(--text-color);
             }
         </style>
         """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    with st.expander("### 📬 聯繫方式", expanded=True):
-        st.markdown("""
-        
-        <div class='contact-info'>
-        <div class='email'>📧 lauandhang@yahoo.com.tw</div>
-        <div class='email'>📱 0987-504-923</div>
-        <div class='email'>📍 新北市</div>
-        <div class='email'>💼 LinkedIn: Patrick Liou</div>
-        <div class='email'> 💬 Line: Patrick.liou</div>
-        <div class='email'>📱 WeChat: Patrick_Liou</div>
-      
-        """, unsafe_allow_html=True)
 
-# 更新访问计数
-total_visits = update_visitor_count()
+# 更新訪問計數
+total_visits = visitor_tracker.update_visitor_count()
 
-# 显示访问计数器
+# 顯示訪問計數器
 visitor_counter = f"""
 <div class='visitor-counter'>
     👀 訪問量: {total_visits}
@@ -404,7 +683,16 @@ visitor_counter = f"""
 """
 st.markdown(visitor_counter, unsafe_allow_html=True)
 
-# 添加标题
+# 檢查是否需要發送每日報告
+if 'last_run' not in st.session_state:
+    st.session_state.last_run = datetime.now()
+
+current_time = datetime.now()
+if (current_time - st.session_state.last_run).days >= 1:
+    visitor_tracker.send_daily_report()
+    st.session_state.last_run = current_time
+
+# 添加標題
 st.markdown("""
 <h1 style='text-align: center; color: var(--primary-color);'>
     劉晉亨的個人簡歷 | Patrick Liou Resume
@@ -412,24 +700,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<style>
-.interview-notice {
-    font-size: 24px; /* 字型大小 */
-    color: red; /* 字型顏色 */
-    background-color: yellow; /* 背景顏色 */
-    font-weight: bold; /* 字型加粗 */
-    padding: 10px; /* 內邊距 */
-    border-radius: 5px; /* 圓角 */
-    text-align: center; /* 文字居中 */
-    border: 2px solid red; /* 紅色邊框 */
-}
-</style>
-<div class='interview-notice'>
+<div style='background-color: #FFE873; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;'>
     若需英文面試或加班請 pass | If you need an interview in English or work overtime, please pass
 </div>
 """, unsafe_allow_html=True)
 
-# 图片处理函数
+# 圖片處理函數
 def load_profile_image():
     try:
         img_path = Path("PHOTO.jpg")
@@ -442,36 +718,62 @@ def load_profile_image():
         st.warning(f"載入圖片時發生錯誤：{str(e)}")
         return None
 
-# 主要内容区域
+# 主要內容區域
 if page == "📊 個人總覽":
     col1, col2 = st.columns([1, 2])
     
     with col1:
         profile_image = load_profile_image()
-        st.image(profile_image, width=300, use_column_width=True, output_format="JPEG", clamp=True)
-        
+        if profile_image:
+            st.image(profile_image, width=300, use_column_width=True, output_format="JPEG", clamp=True)
+    
     with col2:
         st.markdown("""
-        # 劉晉亨 <span class='highlight'>Patrick Liou</span>
-        ## 🤖 資深薄膜製程工程師 | AI與大數據專家
-        
-
-        <div class='skill-card'>
-            <h3>🎯 核心專長</h3>
-            <span class='tech-badge'>📍B分析</span>
-            <span class='tech-badge'>📱機器學習</span>
-            <span class='tech-badge'>📧深度學習</span>
-            <span class='tech-badge'>📍製程整合</span>
-            <span class='tech-badge'>📱六標準差</span>
-            <span class='tech-badge'>📧智能工廠</span>
-            <span class='tech-badge'>📊良率優化</span>
-            <span class='tech-badge'>🔬氣體監控</span>
-            <span class='tech-badge'>🤖製程分析</span>
-            <span class='tech-badge'>🔧設備監控</span>
-            <span class='tech-badge'>📈品質管制</span>
-            <span class='tech-badge'>📧異常解析</span>
+        <div class='profile-section'>
+            <h1>劉晉亨 <span class='highlight'>Patrick Liou</span></h1>
+            <h2>🤖 資深製程整合工程師 | AI與大數據專家</h2>
+            
+            <div class='skill-card'>
+                <h3>🎯 核心專長</h3>
+                <div class='tech-badges'>
+                    <span class='tech-badge'>📍大數據分析</span>
+                    <span class='tech-badge'>📱機器學習</span>
+                    <span class='tech-badge'>📧深度學習</span>
+                    <span class='tech-badge'>📍製程整合</span>
+                    <span class='tech-badge'>📱六標準差</span>
+                    <span class='tech-badge'>📧智能工廠</span>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # 添加工作經驗部分
+    st.markdown("""
+    <div class='experience-section'>
+        <h2>工作經驗</h2>
+        
+        <div class='experience-card'>
+            <h3>聯電 (UMC)</h3>
+            <p class='highlight'>2015年1月 - 至今</p>
+            <h4>資深製程整合工程師</h4>
+            <ul>
+                <li>負責新製程技術導入與優化</li>
+                <li>建立智能預警系統，提升良率15%</li>
+                <li>開發自動化數據分析工具</li>
+            </ul>
+        </div>
+        
+        <div class='experience-card'>
+            <h3>台積電 (TSMC)</h3>
+            <p class='highlight'>2014年3月 - 2014年12月</p>
+            <h4>設備工程師</h4>
+            <ul>
+                <li>負責設備維護與效能優化</li>
+                <li>參與新世代製程開發</li>
+            </ul>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 elif page == "💼 專業經歷":
     col1, col2 = st.columns([2, 1])
@@ -490,7 +792,7 @@ elif page == "💼 專業經歷":
         </div>
         
         <div class='experience-card'>
-            <h3>台積電 (TSMC)</h3>
+            <h3>台積電 (tsmc) </h3>S
             <p class='highlight'>2014年3月 - 2014年12月</p>
             <h4>設備工程師</h4>
             <ul>
@@ -520,7 +822,7 @@ elif page == "💼 專業經歷":
         </div>
         """, unsafe_allow_html=True)
     with col2:    
-        # 添加雷达图
+        # 添加雷達圖
         skills = ['領導能力', '技術創新', '專案管理', '問題解決', '團隊協作']
         values = [95, 90, 92, 88, 93]
         
@@ -602,7 +904,7 @@ elif page == "🎓 教育背景":
         <div class='education-card' style='font-size: 1.8em;'>
             <h3>國立台灣大學</h3>
             <p class='highlight'>2015年3月 - 2017年6月</p>
-            <h4>第25期法律學分班</h4>
+            <h4>持續教育法律課程</h4>
             <ul>
                 <li>專業課程：商業法律、智慧財產權、勞動法規</li>
                 <li>研究方向：科技產業法律實務應用</li>
@@ -633,7 +935,7 @@ elif page == "🎓 教育背景":
     
     
     with col2:
-        # 添加知识领域分布雷达图
+        # 添加知識領域分布雷達圖
         knowledge_areas = ['化工製程', '數據分析', '管理實務', '法律知識', '智能製造']
         knowledge_scores = [95, 90, 85, 80, 92]
         
@@ -662,7 +964,7 @@ elif page == "🎓 教育背景":
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        # 添加学习进展时间线
+        # 添加學習進展時間線
         st.markdown("""
         ### 學習歷程
         ```mermaid
@@ -678,41 +980,55 @@ elif page == "🎓 教育背景":
         ```
         """)
         
-        # 添加专业技能评分
+        # 添加專業技能評分
         st.markdown("### 專業技能評分")
-        skills_data = {
-            "化工專業": 95,
-            "數據分析": 90,
-            "法律知識": 85,
-            "管理能力": 88,
-            "研究創新": 92
-        }
+        col1, col2 = st.columns(2)
         
-        for skill, score in skills_data.items():
-            st.markdown(f"**{skill}**")
-            st.progress(score/100)
-            st.markdown(f"*{score}%*")
+        with col1:
+            st.markdown("#### 化工專業")
+            st.progress(0.95)
+            st.markdown("#### 數據分析")
+            st.progress(0.90)
+        
+        with col2:
+            st.markdown("#### 法律知識")
+            st.progress(0.85)
+            st.markdown("#### 管理能力")
+            st.progress(0.88)
 
 elif page == "🛠️ 技能專長":
     st.markdown("""
-    <div class='skill-card'>
-        <h3>大數據與人工智慧技術</h3>
-        <ul>
-            <li>大數據分析與機器學習
-                <ul>
-                    <li>Python: Pandas, NumPy, Scikit-learn</li>
-                    <li>深度學習: TensorFlow, PyTorch, YOLOv4</li>
-                    <li>AutoML與LLM應用開發</li>
-                </ul>
-            </li>
+    <div class='tech-section'>
+        <h3 class='tech-category'>🔧 技術工具</h3>
+        <ul class='tech-list'>
+            <li>🐍 Python: Pandas, NumPy, Scikit-learn</li>
+            <li>🧠 深度學習: TensorFlow, PyTorch, YOLOv4</li>
+            <li>🤖 AutoML與LLM應用開發</li>
+        </ul>
+        
+    <div class='tech-section'>
+        <h3 class='tech-category'>💡 製程專長</h3>
+        <ul class='tech-list'>
+            <li>🔬 半導體製程整合與優化：協助制定製程策略，減少生產瓶頸。</li>
+            <li>📊 製程參數分析與調校：使用數據分析工具（如DOE）進行精準調校。</li>
+            <li>🎯 良率提升與異常排除：追蹤缺陷根因，提升生產效能。</li>
+            <li>🔧 設備監控與預防保養：結合IoT技術進行設備實時監控。</li>
+        </ul>
+
+    <div class='tech-section'>
+        <h3 class='tech-category'>📈 數據分析</h3>
+        <ul class='tech-list'>
+            <li>📊 統計分析與實驗設計 (DOE)：制定有效實驗計畫以探索最佳製程參數。</li>
+            <li>📉 製程能力分析 (SPC/CpK)：分析製程穩定性與能力，確保合格率。</li>
+            <li>🎯 六標準差 (6-Sigma) 專案：實施數據驅動的改進專案，降低缺陷率。</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
     
-    # 添加技能评分展示
+    # 添加技能評分展示
     st.markdown("### 💫 專業技能評分")
     
-    # 创建技能数据
+    # 創建技能數據
     skills_data = {
         "製程整合能力": {
             "半導體/面板製程": 95,
@@ -734,7 +1050,7 @@ elif page == "🛠️ 技能專長":
         }
     }
     
-    # 使用列显示技能评分
+    # 使用列顯示技能評分
     cols = st.columns(len(skills_data))
     for col, (category, skills) in zip(cols, skills_data.items()):
         with col:
@@ -743,501 +1059,225 @@ elif page == "🛠️ 技能專長":
                 st.markdown(f"**{skill}**")
                 st.progress(level/100)
 
-elif page == "📈 專案展示":
-    tab1, tab2, tab3 = st.tabs(["🤖 Process Analysis", "📊 Yield Optimization", "🔬 Gas Monitoring"])
-    
-    with tab1:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹 PAD4T Process Optimization Analysis</h3>
-            <ul>
-                <li>Multivariate Statistical Analysis (PCA/PLS)</li>
-                <li>Key Parameter Identification (VIP)</li>
-                <li>Process Parameter Optimization</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 生成模拟数据
-        @st.cache
-        def generate_process_data():
-            n_samples = 1000
-            np.random.seed(42)
-            
-            # 生成制程参数
-            data = pd.DataFrame({
-                'Temperature': np.random.normal(300, 10, n_samples),
-                'Pressure': np.random.normal(750, 20, n_samples),
-                'RF_Power': np.random.normal(1000, 50, n_samples),
-                'Gas_Flow': np.random.normal(100, 5, n_samples),
-                'Time': np.random.normal(60, 3, n_samples)
-            })
-            
-            # 生成PAD4T响应值（基于参数的线性组合加噪声）
-            data['PAD4T'] = (0.4 * (data['Temperature'] - 300) / 10 +
-                           0.3 * (data['Pressure'] - 750) / 20 +
-                           0.2 * (data['RF_Power'] - 1000) / 50 +
-                           0.1 * (data['Gas_Flow'] - 100) / 5 +
-                           np.random.normal(0, 0.1, n_samples))
-            
-            return data
-        
-        process_data = generate_process_data()
-        
-        # PCA分析
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.decomposition import PCA
-        
-        # 数据标准化
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(process_data.drop('PAD4T', axis=1))
-        
-        # PCA
-        pca = PCA()
-        X_pca = pca.fit_transform(X_scaled)
-        
-        # 显示PCA结果
-        st.markdown("### PCA 主成分分析")
-        
-        # 绘制解释方差比例
-        explained_variance_ratio = pca.explained_variance_ratio_
-        cumulative_variance_ratio = np.cumsum(explained_variance_ratio)
-        
-        fig_pca = go.Figure()
-        fig_pca.add_trace(go.Bar(
-            x=[f'PC{i+1}' for i in range(len(explained_variance_ratio))],
-            y=explained_variance_ratio * 100,
-            name='Explained Variance Ratio'
-        ))
-        fig_pca.add_trace(go.Scatter(
-            x=[f'PC{i+1}' for i in range(len(cumulative_variance_ratio))],
-            y=cumulative_variance_ratio * 100,
-            name='Cumulative Explained Variance Ratio',
-            mode='lines+markers'
-        ))
-        
-        fig_pca.update_layout(
-            title='PCA Explained Variance Ratio',
-            xaxis_title='Principal Component',
-            yaxis_title='Explained Variance Ratio (%)',
-            height=400
-        )
-        
-        st.plotly_chart(fig_pca, use_container_width=True)
-        
-        # PLS分析
-        from sklearn.cross_decomposition import PLSRegression
-        
-        # 计算VIP分数
-        def vip(model):
-            t = model.x_scores_
-            w = model.x_weights_
-            q = model.y_loadings_
-            
-            p, h = w.shape
-            vips = np.zeros((p,))
-            s = np.diag(t.T @ t @ q.T @ q).reshape(h, -1)
-            total_s = np.sum(s)
-            
-            for i in range(p):
-                weight = np.array([(w[i, j] / np.linalg.norm(w[:, j]))**2 for j in range(h)])
-                vips[i] = np.sqrt(p * (s.T @ weight) / total_s)
-            
-            return vips
-        
-        # PLS建模
-        pls = PLSRegression(n_components=2)
-        pls.fit(X_scaled, process_data['PAD4T'])
-        
-        # 计算VIP分数
-        vip_scores = vip(pls)
-        
-        # 显示VIP分析结果
-        st.markdown("### VIP Importance Analysis")
-        
-        vip_df = pd.DataFrame({
-            'Parameter': process_data.drop('PAD4T', axis=1).columns,
-            'VIP Score': vip_scores
-        })
-        vip_df = vip_df.sort_values('VIP Score', ascending=False)
-        
-        fig_vip = go.Figure()
-        fig_vip.add_trace(go.Bar(
-            x=vip_df['Parameter'],
-            y=vip_df['VIP Score']
-        ))
-        
-        fig_vip.add_shape(
-            type='line',
-            x0=-0.5,
-            y0=1,
-            x1=len(vip_df)-0.5,
-            y1=1,
-            line=dict(color='red', width=2, dash='dash')
-        )
-        
-        fig_vip.update_layout(
-            title='Parameter VIP Score',
-            xaxis_title='Process Parameter',
-            yaxis_title='VIP Score',
-            height=400
-        )
-        
-        st.plotly_chart(fig_vip, use_container_width=True)
-        
-        # 显示关键参数影响
-        st.markdown("### Key Parameter Impact Analysis")
-        
-        # 选择最重要的两个参数进行交互分析
-        top_params = vip_df['Parameter'].head(2).tolist()
-        
-        fig_interaction = go.Figure()
-        
-        # 创建散点图，颜色表示PAD4T值
-        fig_interaction.add_trace(go.Scatter(
-            x=process_data[top_params[0]],
-            y=process_data[top_params[1]],
-            mode='markers',
-            marker=dict(
-                size=8,
-                color=process_data['PAD4T'],
-                colorscale='Viridis',
-                showscale=True,
-                colorbar=dict(title='PAD4T')
-            ),
-            text=[f'PAD4T: {val:.3f}' for val in process_data['PAD4T']],
-            hoverinfo='text'
-        ))
-        
-        fig_interaction.update_layout(
-            title=f'{top_params[0]} vs {top_params[1]} 對 PAD4T 的影響',
-            xaxis_title=top_params[0],
-            yaxis_title=top_params[1],
-            height=500
-        )
-        
-        st.plotly_chart(fig_interaction, use_container_width=True)
-        
-        # 添加性能指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Model Interpretability</h4>
-                <div class='metric-value'>92.5%</div>
-                <div class='metric-delta'>Highly Correlated</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Prediction Accuracy</h4>
-                <div class='metric-value'>95.8%</div>
-                <div class='metric-delta'>↑3.2%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>Parameter Optimization</h4>
-                <div class='metric-value'>98.3%</div>
-                <div class='metric-delta'>↑4.5%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # 添加分析流程图
-        st.markdown("### 分析流程")
-        st.markdown("""
-        ```mermaid
-        graph TD
-            A[數據收集] --> B[數據預處理]
-            B --> C[PCA分析]
-            B --> D[PLS建模]
-            C --> E[主成分解釋]
-            D --> F[VIP分析]
-            E --> G[參數篩選]
-            F --> G
-            G --> H[最佳化建議]
-            H --> I[製程調整]
-            I --> J[效果驗證]
-        ```
-            A[數據收集] --> B[即時監控]
-            B --> C[AI分析]
-            C --> D[預測模型]
-            D --> E[異常檢測]
-            E --> F{是否異常?}
-            F -->|是| G[觸發警報]
-            F -->|否| B
-            G --> H[自動調整]
-            H --> B
-        ```
-        """)
-
-    with tab2:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹製程良率提升專案</h3>
-            <ul>
-                <li>專案背景：
-                    <ul>
-                        <li>製程良率波動大，需要系統性改善</li>
-                        <li>製程參數最佳化需求迫切</li>
-                    </ul>
-                </li>
-                <li>實施方法：
-                    <ul>
-                        <li>建立製程參數數據庫</li>
-                        <li>開發自動化分析工具</li>
-                        <li>制定製程改善策略</li>
-                    </ul>
-                </li>
-                <li>專案成果：
-                    <ul>
-                        <li>良率提升 15%</li>
-                        <li>製程穩定性提升 25%</li>
-                        <li>成本降低 10%</li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        
-        @st.cache
-        def generate_yield_trend():
-            dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')
-            base_yield = 0.75
-            trend = np.linspace(0, 0.15, len(dates))  # 15% 提升
-            noise = np.random.normal(0, 0.02, len(dates))
-            yields = base_yield + trend + noise
-            return pd.DataFrame({
-                'date': dates,
-                'yield': yields
-            })
-        
-        yield_data = generate_yield_trend()
-        
-        # 绘制良率趋势图
-        fig = px.line(yield_data, x='date', y='yield',
-                     title='製程良率提升趨勢',
-                     labels={'date': '日期', 'yield': '良率'},
-                     template='plotly_white')
-        
-        fig.add_hline(y=0.75, line_dash="dash", 
-                     annotation_text="基準良率",
-                     annotation_position="bottom right")
-        
-        fig.add_hline(y=0.90, line_dash="dash",
-                     annotation_text="目標良率",
-                     annotation_position="top right")
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # 添加关键指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("良率提升", "15%", "↑15%")
-        with col2:
-            st.metric("穩定性提升", "25%", "↑25%")
-        with col3:
-            st.metric("成本降低", "10%", "↓10%")
-    
-    with tab3:
-        st.markdown("""
-        <div class='skill-card'>
-            <h3>🔹 智能氣體流量監控系統</h3>
-            <ul>
-                <li>即時監控多種製程氣體流量</li>
-                <li>AI模型預測流量趨勢</li>
-                <li>異常檢測與預警機制</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 生成数据
-        gas_data = generate_gas_data()
-        
-        # 训练模型
-        models, scalers = train_gas_model(gas_data)
-        
-        # 获取预测
-        predictions = predict_gas_flow(models, scalers)
-        
-        # 显示实时监控图表
-        st.markdown("### 即時氣體流量監控")
-        fig1 = go.Figure()
-        
-        recent_data = gas_data.tail(24)
-        for col in gas_data.columns:
-            if '_flow' in col:
-                fig1.add_trace(go.Scatter(
-                    x=recent_data['timestamp'],
-                    y=recent_data[col],
-                    name=col.replace('_flow', ''),
-                    mode='lines+markers'
-                ))
-        
-        fig1.update_layout(
-            title='24小時氣體流量趨勢',
-            xaxis_title='時間',
-            yaxis_title='流量 (sccm)',
-            height=500
-        )
-        
-        st.plotly_chart(fig1, use_container_width=True)
-        
-        # 显示预测结果
-        st.markdown("### AI預測分析")
-        fig2 = go.Figure()
-        
-        for col in predictions.columns:
-            if col != 'timestamp':
-                fig2.add_trace(go.Scatter(
-                    x=predictions['timestamp'],
-                    y=predictions[col],
-                    name=f'{col} (預測)',
-                    line=dict(dash='dash')
-                ))
-        
-        fig2.update_layout(
-            title='未來24小時氣體流量預測',
-            xaxis_title='時間',
-            yaxis_title='預測流量 (sccm)',
-            height=500
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-        
-        # 添加性能指标
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>監控氣體種類</h4>
-                <div class='metric-value'>5</div>
-                <div class='metric-delta'>完整覆蓋</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>預測準確率</h4>
-                <div class='metric-value'>95.8%</div>
-                <div class='metric-delta'>↑2.3%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.markdown("""
-            <div class='metric-card'>
-                <h4>異常檢測率</h4>
-                <div class='metric-value'>99.2%</div>
-                <div class='metric-delta'>↑1.5%</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # 添加流程图
-        st.markdown("### 智能監控流程")
-        st.markdown("""
-        ```mermaid
-        graph TD
-            A[數據收集] --> B[即時監控]
-            B --> C[AI分析]
-            C --> D[預測模型]
-            D --> E[異常檢測]
-            E --> F{是否異常?}
-            F -->|是| G[觸發警報]
-            F -->|否| B
-            G --> H[自動調整]
-            H --> B
-        ```
-        """)
-
 elif page == "🌟 個人特質":
-    # 頁面標題
-    st.markdown(## "🌟 個人特質")
-
-    # 1. 專業特質圖片展示
-    st.markdown("### 🎯 專業特質")
-    st.write("""以下是我的專業特質展示，結合圖片和數據更直觀地呈現：""")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.image("https://via.placeholder.com/150", caption="製程整合經驗")
-        st.markdown("- **紮實理論基礎**")
-        st.markdown("- **持續學習新技術**")
-
-    with col2:
-        st.image("https://via.placeholder.com/150", caption="問題分析能力")
-        st.markdown("- **系統性思維方式**")
-        st.markdown("- **快速定位問題根因**")
-        st.markdown("- **提供有效解決方案**")
-
-    with col3:
-        st.image("https://via.placeholder.com/150", caption="創新與解決方案")
-        st.markdown("- **開發自動化工具**")
-        st.markdown("- **優化工作流程**")
-        st.markdown("- **提升效率與效益**")
-
-    # 2. 軟實力的雷達圖展示
-    st.markdown("### 🌟 軟實力評估")
-    st.write("以下是我的軟實力雷達圖分析，展示多項軟技能的評估結果：")
-
-    # 軟實力數據
-    radar_data = {
-        "技能": ["團隊合作", "專案管理", "抗壓性", "適應力", "溝通能力"],
-        "評分": [90, 92, 88, 95, 85]
+    st.markdown("""
+    <style>
+    .personality-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 1rem;
     }
-    radar_df = pd.DataFrame(radar_data)
+    .personality-item {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .personality-item h3 {
+        color: #1e88e5;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    .personality-item ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .personality-item li {
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    .personality-item li:before {
+        content: "•";
+        color: #1e88e5;
+        position: absolute;
+        left: 0;
+    }
+    </style>
+    
+    <div class="personality-container">
+        <div class="personality-item">
+            <h3>🎯 領導力與團隊合作</h3>
+            <ul>
+                <li>具備優秀的團隊領導能力</li>
+                <li>良好的溝通技巧</li>
+                <li>具有同理心</li>
+            </ul>
+        </div>
+        <div class="personality-item">
+            <h3>🚀 學習與創新</h3>
+            <ul>
+                <li>持續學習的熱情</li>
+                <li>創新思維</li>
+                <li>解決問題的能力</li>
+            </ul>
+        </div>
+        <div class="personality-item">
+            <h3>💡 專業素養</h3>
+            <ul>
+                <li>高度責任感</li>
+                <li>注重細節</li>
+                <li>追求卓越</li>
+            </ul>
+        </div>
+        <div class="personality-item">
+            <h3>🤝 團隊精神</h3>
+            <ul>
+                <li>良好的團隊合作</li>
+                <li>積極主動</li>
+                <li>樂於分享</li>
+            </ul>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # 添加能力評分
+    st.markdown("### 🎯 能力評分")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 領導力")
+        st.progress(0.85)
+        st.markdown("#### 創新力")
+        st.progress(0.90)
+        
+    with col2:
+        st.markdown("#### 執行力")
+        st.progress(0.95)
+        st.markdown("#### 學習力")
+        st.progress(0.92)
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-        r=radar_df["評分"],
-        theta=radar_df["技能"],
-        fill='toself',
-        name='軟實力'
-    ))
+elif page == "📈 專案展示":
+    st.markdown("## PCA 分析結果")
+    
+    # 生成更明顯的分群數據
+    n_samples = 150
+    np.random.seed(42)
+    
+    # 生成三個明顯分開的群集
+    cluster1 = np.random.normal(loc=[4, 4], scale=0.5, size=(n_samples//3, 2))
+    cluster2 = np.random.normal(loc=[-4, -4], scale=0.5, size=(n_samples//3, 2))
+    cluster3 = np.random.normal(loc=[4, -4], scale=0.5, size=(n_samples//3, 2))
+    
+    # 合併數據
+    X = np.vstack([cluster1, cluster2, cluster3])
+    
+    # 添加群集標籤
+    labels = np.array(['製程A'] * (n_samples//3) + ['製程B'] * (n_samples//3) + ['製程C'] * (n_samples//3))
+    
+    # 創建數據框
+    pca_df = pd.DataFrame(X, columns=['特徵1', '特徵2'])
+    pca_df['群集'] = labels
+    
+    # 繪製 PCA 散點圖
+    fig = px.scatter(pca_df, x='特徵1', y='特徵2', 
+                    color='群集',
+                    title='製程參數群集分析',
+                    color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c'],
+                    labels={'特徵1': '主成分 1', 
+                           '特徵2': '主成分 2',
+                           '群集': '製程類型'})
+    
     fig.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100])
+        title_font_size=24,
+        font=dict(size=16),
+        legend=dict(
+            font=dict(size=16),
+            title_font=dict(size=16)
         ),
-        title="軟實力雷達圖"
+        xaxis=dict(
+            title_font=dict(size=16),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=16),
+            tickfont=dict(size=14)
+        ),
+        plot_bgcolor='white',
+        showlegend=True
+    )
+    
+    fig.update_traces(
+        marker=dict(size=12, 
+                   line=dict(width=1, color='white')),
+        selector=dict(mode='markers')
+    )
+    
+    st.plotly_chart(fig)
+
+elif page == "🔬 專案分析":
+    st.markdown("# 進階數據分析")
+    
+    # 直接顯示所有分析內容，移除下拉選單
+    st.markdown("""
+    ## 製程分析
+    - 即時監控與分析製程參數
+    - 預測性維護與異常檢測
+    - 品質控制與優化
+    """)
+    
+    # 生成製程數據
+    process_data = pd.DataFrame(np.random.randn(500, 3), columns=['溫度', '壓力', '品質'])
+    
+    # 相關性熱圖
+    corr = process_data.corr()
+    fig = px.imshow(corr, 
+                   title='參數相關性矩陣',
+                   color_continuous_scale='RdBu',
+                   labels={'color': '相關係數'})
+    fig.update_layout(
+        title_font_size=24,
+        font=dict(size=16)
+    )
+    st.plotly_chart(fig)
+    
+    # 時間序列分析
+    st.markdown("## 時間序列分析")
+    dates = pd.date_range(start='2024-01-01', periods=100)
+    ts_data = pd.DataFrame({
+        '日期': dates,
+        '溫度': np.random.normal(25, 2, 100) + np.sin(np.linspace(0, 10, 100)) * 5,
+        '壓力': np.random.normal(100, 5, 100) + np.cos(np.linspace(0, 10, 100)) * 10
+    })
+    
+    fig = px.line(ts_data, x='日期', y=['溫度', '壓力'],
+                 title='製程參數趨勢分析')
+    fig.update_layout(
+        title_font_size=24,
+        font=dict(size=16),
+        legend=dict(font=dict(size=16))
+    )
+    st.plotly_chart(fig)
+    
+    # 品質控制圖
+    st.markdown("## 品質控制")
+    quality_data = pd.DataFrame({
+        '樣本': range(1, 51),
+        '測量值': np.random.normal(100, 2, 50)
+    })
+    
+    ucl = quality_data['測量值'].mean() + 3 * quality_data['測量值'].std()
+    lcl = quality_data['測量值'].mean() - 3 * quality_data['測量值'].std()
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=quality_data['樣本'], y=quality_data['測量值'],
+                            mode='lines+markers', name='測量值'))
+    fig.add_hline(y=ucl, line_dash="dash", line_color="red", name='UCL')
+    fig.add_hline(y=lcl, line_dash="dash", line_color="red", name='LCL')
+    fig.update_layout(
+        title='品質控制圖',
+        title_font_size=24,
+        font=dict(size=16),
+        xaxis_title="樣本編號",
+        yaxis_title="測量值"
     )
     st.plotly_chart(fig)
 
-    # 3. 綜合能力評估圖表
-    st.markdown("### 💫 綜合能力評估")
-    st.write("以下是我的綜合能力，通過數據視覺化展示評估結果：")
-
-    # 綜合能力數據
-    abilities = {
-        "領導力": {"score": 90, "description": "團隊管理、專案領導、目標達成"},
-        "創新力": {"score": 88, "description": "流程優化、工具開發、問題解決"},
-        "執行力": {"score": 95, "description": "專案管理、時程控制、結果導向"},
-        "學習力": {"score": 92, "description": "技術更新、知識吸收、自我提升"}
-    }
-
-    # 使用列顯示能力評分
-    for ability, data in abilities.items():
-        st.markdown(f"#### {ability}")
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.markdown(f"**評分：{data['score']}**")
-        with col2:
-            st.progress(data['score'] / 100)
-        st.markdown(f"*{data['description']}*")
-        st.markdown("---")
-
-    # 添加總結
-    st.markdown("""
-    ### 🏆 結語
-    我擁有扎實的專業技術能力與出色的軟實力，能靈活應對不同挑戰，實現個人與團隊的目標！
-    """)
-
-
-# 页脚
+# 頁腳
 st.markdown("""
 ---
 <div style='text-align: center; color: var(--text-color); padding: 20px;'>
-    © 2025 劉晉亨 | AI Enhanced Resume | Built with ❤️ and ❤️
+    2025 劉晉亨 | AI Enhanced Resume | Built with ❤️ and ❤️
 </div>
 """, unsafe_allow_html=True)
