@@ -27,7 +27,7 @@ st.set_page_config(
     page_title="劉晉亨個人履歷",
     page_icon="🎈",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # 手機上預設收合側邊欄
 )
 
 # 自定義 CSS 樣式
@@ -379,10 +379,41 @@ st.markdown("""
     
     /* 小螢幕裝置 (max-width: 768px) */
     @media screen and (max-width: 768px) {
-        /* 基本布局調整 */
+        /* 隱藏側邊欄，避免遮擋主內容 */
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        
+        /* 展開時的側邊欄樣式 */
+        [data-testid="stSidebar"][aria-expanded="true"] {
+            display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 85% !important;
+            max-width: 300px !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            background: white !important;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2) !important;
+        }
+        
+        /* 主內容區域 - 確保不被遮擋 */
         .main .block-container {
-            padding: 1rem 0.5rem !important;
+            padding: 1rem 0.8rem !important;
             max-width: 100% !important;
+            margin-left: 0 !important;
+        }
+        
+        /* 確保主內容佔滿寬度 */
+        .main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* 移除左邊的空白 */
+        section[data-testid="stSidebarContent"] {
+            padding: 1rem !important;
         }
         
         /* 標題字體調整 */
@@ -455,12 +486,6 @@ st.markdown("""
         /* Plotly 圖表調整 */
         .js-plotly-plot {
             width: 100% !important;
-        }
-        
-        /* 側邊欄調整 */
-        [data-testid="stSidebar"] {
-            width: 100% !important;
-            min-width: 100% !important;
         }
         
         /* 專案卡片 - 確保內容不溢出 */
