@@ -411,6 +411,176 @@ st.markdown("""
         background: #4CAF50;
         border-radius: 5px;
     }
+
+    /* ========== Mobile Responsive Design ========== */
+    
+    /* Small screens (max-width: 768px) */
+    @media screen and (max-width: 768px) {
+        /* Basic layout adjustments */
+        .main .block-container {
+            padding: 1rem 0.5rem !important;
+            max-width: 100% !important;
+        }
+        
+        /* Font size adjustments */
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        h2 {
+            font-size: 1.3rem !important;
+        }
+        h3 {
+            font-size: 1.1rem !important;
+        }
+        
+        /* Profile section */
+        .profile-section {
+            padding: 1.5rem !important;
+        }
+        .profile-section h1 {
+            font-size: 1.8rem !important;
+        }
+        .profile-section h2 {
+            font-size: 1.2rem !important;
+        }
+        
+        /* Card styles */
+        .skill-card, .education-card, .experience-card {
+            padding: 1rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* Tech badges */
+        .tech-badge {
+            padding: 0.5rem 0.8rem !important;
+            font-size: 0.9rem !important;
+        }
+        .tech-badge .icon {
+            font-size: 1.2rem !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        /* Streamlit columns - stack vertically */
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* Image adjustments */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* LLM icon area */
+        [data-testid="column"] > div > div {
+            min-height: auto !important;
+        }
+        
+        /* Text size */
+        p, li {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+        }
+        
+        /* Table adjustments */
+        table {
+            font-size: 0.8rem !important;
+        }
+        
+        /* Plotly charts */
+        .js-plotly-plot {
+            width: 100% !important;
+        }
+        
+        /* Sidebar */
+        [data-testid="stSidebar"] {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* Project cards */
+        div[style*="min-height: 280px"] {
+            min-height: auto !important;
+            padding: 15px !important;
+        }
+        div[style*="min-height: 280px"] h3 {
+            font-size: 1rem !important;
+        }
+        div[style*="min-height: 280px"] ul {
+            padding-left: 1.2rem !important;
+            font-size: 0.85rem !important;
+        }
+        div[style*="min-height: 280px"] img {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        /* Five features icons */
+        div[style*="width: 100px"] {
+            width: 60px !important;
+            height: 60px !important;
+            padding: 8px !important;
+        }
+        div[style*="width: 100px"] img {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        /* Certificate images */
+        div[style*="border-radius: 15px"] img {
+            max-height: 150px !important;
+        }
+    }
+    
+    /* Extra small screens (max-width: 480px) */
+    @media screen and (max-width: 480px) {
+        .main .block-container {
+            padding: 0.5rem 0.3rem !important;
+        }
+        
+        h1 {
+            font-size: 1.3rem !important;
+        }
+        h2 {
+            font-size: 1.1rem !important;
+        }
+        h3 {
+            font-size: 1rem !important;
+        }
+        
+        .profile-section h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        /* Core platform cards */
+        div[style*="padding: 25px"] {
+            padding: 12px !important;
+        }
+        div[style*="padding: 25px"] h3 {
+            font-size: 0.95rem !important;
+        }
+        div[style*="padding: 25px"] img {
+            width: 60px !important;
+            height: 60px !important;
+        }
+        div[style*="font-size: 4em"] {
+            font-size: 2.5em !important;
+        }
+    }
+    
+    /* Tablet adjustments (768px - 1024px) */
+    @media screen and (min-width: 769px) and (max-width: 1024px) {
+        .main .block-container {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        /* Allow two columns */
+        [data-testid="column"] {
+            min-width: 45% !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
