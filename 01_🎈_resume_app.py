@@ -417,17 +417,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # 語言切換
-    st.markdown("### 🌐 語言切換")
-    language = st.selectbox(
-        "",
-        ["繁體中文", "English"],
-        key="language_selector",
-        help="選擇顯示語言"
-    )
-
-    st.markdown("---")
-
     # 主題設置
     st.markdown("### 🎨 主題設置")
     theme = st.selectbox(
