@@ -8,6 +8,27 @@ from pathlib import Path
 import datetime
 import time
 from streamlit_mermaid import st_mermaid
+import base64
+
+# 導入證照圖片 base64 資料
+try:
+    from license_images_data import LICENSE_IMAGES
+except ImportError:
+    LICENSE_IMAGES = {}
+
+# 導入 LLM 圖片 base64 資料
+try:
+    from llm_images_data import LLM_IMAGES
+except ImportError:
+    LLM_IMAGES = {}
+
+# 設定頁面為寬螢幕模式
+st.set_page_config(
+    page_title="劉晉亨個人履歷",
+    page_icon="🎈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # 自定義 CSS 樣式
 st.markdown("""
@@ -376,7 +397,7 @@ def load_profile_image():
     try:
         img_path = Path("PHOTO.jpg")
         if img_path.exists():
-            return Image.open(img_path)
+            return str(img_path)
         else:
             st.warning(f"無法找到圖片：{img_path}")
             return None
@@ -390,7 +411,7 @@ with st.sidebar:
     page = st.radio(
         "",
         ["📊 個人總覽", "💼 專業經歷", "🎓 教育背景", "🛠️ 技能專長",
-         "🌟 個人特質", "📈 專案展示", "🔬 專案分析"],
+         "🌟 個人特質", "📈 專案展示", "🔬 專案分析", "🏆 證照展示"],
         key="navigation_menu"
     )
 
@@ -459,101 +480,93 @@ if page == "📊 個人總覽":
     with col1:
         profile_image = load_profile_image()
         if profile_image:
-            st.image(profile_image, use_container_width=True, output_format="JPEG", clamp=True)
+            st.image(profile_image, width=300)
 
     with col2:
-        st.markdown("""
-        <div class='profile-section'>
-            <h1>劉晉亨 <span class='highlight'>Patrick Liou</span></h1>
-            <h2>🤖 資深製程整合工程師 | AI與大數據專家</h2>
-
-            <div class='skill-section'>
-                <div class='skill-card'>
-                    <h3>🎯 核心專長</h3>
-                    <div class='tech-badges'>
-                        <span class='tech-badge' data-type="data">
-                            <span class='icon'>💻</span>
-                            <span class='text'>大數據分析</span>
-                        </span>
-                        <span class='tech-badge' data-type="ai">
-                            <span class='icon'>🤖</span>
-                            <span class='text'>機器學習</span>
-                        </span>
-                        <span class='tech-badge' data-type="ai">
-                            <span class='icon'>🧠</span>
-                            <span class='text'>深度學習</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div class='skill-card'>
-                    <h3>🎯 專業技能</h3>
-                    <div class='tech-badges'>
-                        <span class='tech-badge' data-type="process">
-                            <span class='icon'>🔩</span>
-                            <span class='text'>製程整合</span>
-                        </span>
-                        <span class='tech-badge' data-type="process">
-                            <span class='icon'>📈</span>
-                            <span class='text'>六標準差</span>
-                        </span>
-                        <span class='tech-badge' data-type="data">
-                            <span class='icon'>🏭</span>
-                            <span class='text'>智能工廠</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("# 劉晉亨 Patrick Liou")
+        st.markdown("### 🤖 資深製程整合工程師 | AI與大數據專家")
+        
+        st.markdown("---")
+        
+        # 核心專長
+        st.markdown("#### 🎯 核心專長")
+        col_a, col_b, col_c = st.columns(3)
+        with col_a:
+            st.info("💻 大數據分析")
+        with col_b:
+            st.info("🤖 機器學習")
+        with col_c:
+            st.info("🧠 深度學習")
+        
+        col_d, col_e, col_f = st.columns(3)
+        with col_d:
+            st.warning("💬 大語言模型(LLM)")
+        with col_e:
+            st.warning("🔍 RAG 應用")
+        with col_f:
+            st.warning("🎤 語音辨識")
+        
+        # 專業技能
+        st.markdown("#### 🎯 專業技能")
+        col_g, col_h, col_i = st.columns(3)
+        with col_g:
+            st.success("🔩 製程整合")
+        with col_h:
+            st.success("📈 六標準差")
+        with col_i:
+            st.success("🏭 智能工廠")
 
 
 elif page == "💼 專業經歷":
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("""
-        <div class='experience-card'>
-            <h3>群創光電 (Innolux Corporation)</h3>
-            <p class='highlight'>2014年12月 - 至今</p>
-            <h4>製程工程師 / Team Leader</h4>
-            <ul>
-                <li>領導智能工廠專案，成功導入工業4.0解決方案，顯著提升生產效率</li>
-                <li>開發YOLOv4缺陷檢測模型，縮短反饋時間並提高缺陷檢出率60%</li>
-                <li>主導3項六標準差專案，優化製程參數並降低產品次品率，節省2100萬台幣/年</li>
-            </ul>
-        </div>
+        # 群創光電 (現職)
+        with st.container():
+            st.markdown("### 🏢 群創光電 (Innolux Corporation)")
+            st.markdown("**2014年12月 - 至今** | 製程工程師 / Team Leader")
+            st.markdown("""
+            - 領導智能工廠專案，成功導入工業4.0解決方案，顯著提升生產效率
+            - 開發YOLOv4缺陷檢測模型，縮短反饋時間並提高缺陷檢出率60%
+            - 主導3項六標準差專案，優化製程參數並降低產品次品率，節省2100萬台幣/年
+            - 建立大語言模型(LLM)智能應用系統，實現跨資料庫查詢與異常分析，資料整理時間縮短92%
+            - 開發 AI 自動化機況分類與 RPSC 數據分析系統，提升異常處理效率
+            - 導入 Whisper 語音辨識系統，實現會議記錄自動化與智能摘要
+            """)
+        
+        st.divider()
+        
+        # 台積電
+        with st.container():
+            st.markdown("### 🏢 台積電 (TSMC)")
+            st.markdown("**2014年3月 - 2014年12月** | 設備工程師")
+            st.markdown("""
+            - 優化製程工具參數，提升產量與穩定性，缺陷率改善4%
+            - 減少系統崩潰率至5%，提升設備可用性與產能利用率
+            """)
+        
+        st.divider()
+        
+        # 台灣水泥
+        with st.container():
+            st.markdown("### 🏢 台灣水泥 (Taiwan Cement Corp)")
+            st.markdown("**2013年9月 - 2014年3月** | 儲備幹部(MA)")
+            st.markdown("""
+            - 負責生產流程監控與優化，縮短瓶頸工序時間15%
+            - 協助開發新PDA系統，提高製程自動化程度
+            """)
+        
+        st.divider()
+        
+        # 群創光電 (早期)
+        with st.container():
+            st.markdown("### 🏢 群創光電 (Innolux Corporation)")
+            st.markdown("**2010年1月 - 2013年9月** | 製程工程師")
+            st.markdown("""
+            - 協助建置新廠，完成試量產並縮短建廠時程30%
+            - 分析設備故障原因並提供解決方案，提高設備稼動率25%
+            """)
 
-        <div class='experience-card'>
-            <h3>台積電 (tsmc) </h3>
-            <p class='highlight'>2014年3月 - 2014年12月</p>
-            <h4>設備工程師</h4>
-            <ul>
-                <li>優化製程工具參數，提升產量與穩定性，缺陷率改善4%</li>
-                <li>減少系統崩潰率至5%，提升設備可用性與產能利用率</li>
-            </ul>
-        </div>
-
-        <div class='experience-card'>
-            <h3>台灣水泥 (Taiwan Cement Corp)</h3>
-            <p class='highlight'>2013年9月 - 2014年3月</p>
-            <h4>儲備幹部(MA)</h4>
-            <ul>
-                <li>負責生產流程監控與優化，縮短瓶頸工序時間15%</li>
-                <li>協助開發新PDA系統，提高製程自動化程度</li>
-            </ul>
-        </div>
-
-        <div class='experience-card'>
-            <h3>群創光電 (Innolux Corporation)</h3>
-            <p class='highlight'>2010年1月 - 2013年9月</p>
-            <h4>製程工程師</h4>
-            <ul>
-                <li>協助建置新廠，完成試量產並縮短建廠時程30%</li>
-                <li>分析設備故障原因並提供解決方案，提高設備稼動率25%</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
     with col2:
         skills = ['領導能力', '技術創新', '專案管理', '問題解決', '團隊協作']
         values = [95, 90, 92, 88, 93]
@@ -620,47 +633,71 @@ elif page == "🎓 教育背景":
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("""
-        <div class='education-card'>
-            <h3>國立交通大學</h3>
-            <p class='highlight'>2015年9月 - 2018年1月</p>
-            <h4>管理科學碩士（MBA）</h4>
-            <ul>
-                <li>專業課程：數據分析與商業智慧、營運管理與策略規劃、專案管理與領導力</li>
-                <li>研究方向：製造業數位轉型與AI應用</li>
-            </ul>
-        </div>
-
-        <div class='education-card'>
-            <h3>國立台灣大學</h3>
-            <p class='highlight'>2015年3月 - 2017年6月</p>
-            <h4>持續教育法律課程</h4>
-            <ul>
-                <li>專業課程：商業法律、智慧財產權、勞動法規</li>
-                <li>研究方向：科技產業法律實務應用</li>
-            </ul>
-        </div>
-
-        <div class='education-card'>
-            <h3>國立台灣科技大學</h3>
-            <p class='highlight'>2006年9月 - 2008年6月</p>
-            <h4>化學工程碩士</h4>
-            <ul>
-                <li>專業課程：化工單元操作、反應工程、程序控制</li>
-                <li>研究方向：製程最佳化與控制</li>
-            </ul>
-        </div>
-
-        <div class='education-card'>
-            <h3>逢甲大學</h3>
-            <p class='highlight'>2002年9月 - 2006年6月</p>
-            <h4>化學工程學士</h4>
-            <ul>
-                <li>專業課程：化工原理、物理化學、化工熱力學</li>
-                <li>專題研究：製程監控與自動化</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
+        # 台灣人工智慧學校 - AI技術領袖班 (最新)
+        with st.container():
+            st.markdown("### 🤖 台灣人工智慧學校")
+            st.markdown("**2020年 - 2021年** | AI技術領袖班")
+            st.markdown("""
+            - 深度學習與神經網路架構設計
+            - AI專案管理與團隊領導
+            - 產業AI應用實戰
+            """)
+        
+        st.divider()
+        
+        # 台灣人工智慧學校 - AI經理人研修班
+        with st.container():
+            st.markdown("### 🤖 台灣人工智慧學校")
+            st.markdown("**2018年 - 2019年** | AI經理人研修班")
+            st.markdown("""
+            - 機器學習與資料科學基礎
+            - AI策略規劃與商業應用
+            - 數位轉型與創新管理
+            """)
+        
+        st.divider()
+        
+        # 交通大學
+        with st.container():
+            st.markdown("### 🎓 國立交通大學")
+            st.markdown("**2015年9月 - 2018年1月** | 管理科學碩士（MBA）")
+            st.markdown("""
+            - 專業課程：數據分析與商業智慧、營運管理與策略規劃、專案管理與領導力
+            - 研究方向：製造業數位轉型與AI應用
+            """)
+        
+        st.divider()
+        
+        # 台灣大學
+        with st.container():
+            st.markdown("### 🎓 國立台灣大學")
+            st.markdown("**2015年3月 - 2017年6月** | 持續教育法律課程")
+            st.markdown("""
+            - 專業課程：商業法律、智慧財產權、勞動法規
+            - 研究方向：科技產業法律實務應用
+            """)
+        
+        st.divider()
+        
+        # 台科大
+        with st.container():
+            st.markdown("### 🎓 國立台灣科技大學")
+            st.markdown("**2006年9月 - 2008年6月** | 化學工程碩士")
+            st.markdown("""
+            - 專業課程：化工單元操作、反應工程、程序控制
+            - 研究方向：製程最佳化與控制
+            """)
+        
+        st.divider()
+        
+        # 逢甲大學
+        with st.container():
+            st.markdown("### 🎓 逢甲大學")
+            st.markdown("**2002年9月 - 2006年6月** | 化學工程學士")
+            st.markdown("""
+            - 專業課程：化工原理、物理化學、化工熱力學
+            - 專題研究：製程監控與自動化
+            """)
 
     with col2:
         # 添加知識領域分布雷達圖
@@ -699,17 +736,21 @@ elif page == "🎓 教育背景":
             A[逢甲大學<br>化工學士] --> B[台科大<br>化工碩士]
             B --> C[台大<br>法律課程]
             C --> D[交大<br>管理碩士]
+            D --> E[台灣AI學校<br>經理人班]
+            E --> F[台灣AI學校<br>技術領袖班]
 
             style A fill:#f9f,stroke:#333,stroke-width:4px
             style B fill:#bbf,stroke:#333,stroke-width:4px
             style C fill:#ddf,stroke:#333,stroke-width:4px
             style D fill:#dfd,stroke:#333,stroke-width:4px
+            style E fill:#ffd,stroke:#333,stroke-width:4px
+            style F fill:#fdd,stroke:#333,stroke-width:4px
         """
         st_mermaid(education_chart)
 
         # 添加專業技能評分
         st.markdown("### 專業技能評分")
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
         with col1:
             st.markdown("#### 化工專業")
@@ -722,79 +763,56 @@ elif page == "🎓 教育背景":
             st.progress(0.85)
             st.markdown("#### 管理能力")
             st.progress(0.88)
+        
+        with col3:
+            st.markdown("#### AI/LLM 應用")
+            st.progress(0.88)
+            st.markdown("#### Vibe Coding")
+            st.progress(0.85)
 
 elif page == "🛠️ 技能專長":
-    st.markdown("""
-    <div class='skill-card'>
-        <h3>🔧 技術工具</h3>
-        <div class='tech-badges'>
-            <span class='tech-badge' data-type="data">
-                <span class='icon'>💻</span>
-                <span class='text'>Python</span>
-            </span>
-            <span class='tech-badge' data-type="ai">
-                <span class='icon'>🤖</span>
-                <span class='text'>深度學習</span>
-            </span>
-            <span class='tech-badge' data-type="ai">
-                <span class='icon'>🔩</span>
-                <span class='text'>AutoML</span>
-            </span>
-            <span class='tech-badge' data-type="process">
-                <span class='icon'>📊</span>
-                <span class='text'>數據分析</span>
-            </span>
-            <span class='tech-badge' data-type="process">
-                <span class='icon'>📈</span>
-                <span class='text'>六標準差</span>
-            </span>
-            <span class='tech-badge' data-type="data">
-                <span class='icon'>🏭</span>
-                <span class='text'>智能工廠</span>
-            </span>
-        </div>
-    </div>
-
-    <div class='skill-card'>
-        <h3>💡 製程專長</h3>
-        <div class='tech-badges'>
-            <span class='tech-badge' data-type="process">
-                <span class='icon'>🔧</span>
-                <span class='text'>半導體製程</span>
-            </span>
-            <span class='tech-badge' data-type="data">
-                <span class='icon'>📊</span>
-                <span class='text'>製程參數分析</span>
-            </span>
-            <span class='tech-badge' data-type="ai">
-                <span class='icon'>🎯</span>
-                <span class='text'>良率提升</span>
-            </span>
-            <span class='tech-badge' data-type="process">
-                <span class='icon'>🔩</span>
-                <span class='text'>設備監控</span>
-            </span>
-        </div>
-    </div>
-
-    <div class='skill-card'>
-        <h3>📈 數據分析</h3>
-        <div class='tech-badges'>
-            <span class='tech-badge' data-type="data">
-                <span class='icon'>📊</span>
-                <span class='text'>統計分析</span>
-            </span>
-            <span class='tech-badge' data-type="process">
-                <span class='icon'>📉</span>
-                <span class='text'>製程能力分析</span>
-            </span>
-            <span class='tech-badge' data-type="ai">
-                <span class='icon'>🎯</span>
-                <span class='text'>六標準差</span>
-            </span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🛠️ 技能專長")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.info("#### 🔧 技術工具")
+        st.markdown("""
+        - 💻 Python
+        - 🤖 深度學習
+        - 🔩 AutoML
+        - 📊 數據分析
+        - 📈 六標準差
+        - 🏭 智能工廠
+        """)
+    
+    with col2:
+        st.success("#### 💡 製程專長")
+        st.markdown("""
+        - 🔧 半導體製程
+        - 📊 製程參數分析
+        - 🎯 良率提升
+        - 🔩 設備監控
+        """)
+    
+    with col3:
+        st.warning("#### 📈 數據分析")
+        st.markdown("""
+        - 📊 統計分析
+        - 📉 製程能力分析
+        - 🎯 六標準差
+        """)
+    
+    with col4:
+        st.error("#### 🤖 AI & LLM 專長")
+        st.markdown("""
+        - 💬 大語言模型 (LLM)
+        - 🎵 Vibe Coding
+        - 🔍 RAG 應用開發
+        - 🎤 Whisper 語音辨識
+        - 🦜 LangChain/LangFlow
+        - 🧠 Prompt Engineering
+        """)
 
     # 添加技能評分展示
     st.markdown("### 💫 專業技能評分")
@@ -830,128 +848,98 @@ elif page == "🛠️ 技能專長":
                 st.markdown(f"**{skill}**")
                 st.progress(level/100)
 
-    # 添加 Mermaid 圖表 - 職涯發展歷程
-    st.markdown("## 職涯發展歷程")
-    career_chart = """
-    graph TD
-        A[化工背景] --> B[製程整合]
-        B --> C[設備優化]
-        C --> D[智能製造]
-        D --> E[AI應用開發]
+    # 三個 Mermaid 圖表並排顯示
+    st.markdown("---")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("### 職涯發展歷程")
+        career_chart = """
+        graph TD
+            A[化工背景] --> B[製程整合]
+            B --> C[設備優化]
+            C --> D[智能製造]
+            D --> E[AI應用開發]
 
-        style A fill:#f9f,stroke:#333,stroke-width:4px
-        style B fill:#bbf,stroke:#333,stroke-width:4px
-        style C fill:#ddf,stroke:#333,stroke-width:4px
-        style D fill:#fdd,stroke:#333,stroke-width:4px
-        style E fill:#dfd,stroke:#333,stroke-width:4px
-    """
-    st_mermaid(career_chart)
+            style A fill:#f9f,stroke:#333,stroke-width:4px
+            style B fill:#bbf,stroke:#333,stroke-width:4px
+            style C fill:#ddf,stroke:#333,stroke-width:4px
+            style D fill:#fdd,stroke:#333,stroke-width:4px
+            style E fill:#dfd,stroke:#333,stroke-width:4px
+        """
+        st_mermaid(career_chart)
+    
+    with col2:
+        st.markdown("### 核心能力成長")
+        core_skills_chart = """
+        graph TD
+            A[數據處理] --> B[數據分析]
+            B --> C[AI預測]
+            A --> D[資產提升]
+            D --> E[智能製造]
+            C --> E
 
-    # 添加 Mermaid 圖表 - 核心能力成長
-    st.markdown("## 核心能力成長")
-    core_skills_chart = """
-    graph TD
-        A[數據處理] --> B[數據分析]
-        B --> C[AI預測]
-        A --> D[資產提升]
-        D --> E[智能製造]
-        C --> E
+            style A fill:#f9f,stroke:#333,stroke-width:4px
+            style B fill:#bbf,stroke:#333,stroke-width:4px
+            style C fill:#ddf,stroke:#333,stroke-width:4px
+            style D fill:#fdd,stroke:#333,stroke-width:4px
+            style E fill:#dfd,stroke:#333,stroke-width:4px
+        """
+        st_mermaid(core_skills_chart)
+    
+    with col3:
+        st.markdown("### 學習歷程")
+        education_chart = """
+        graph TD
+            A[逢甲大學<br>化工學士] --> B[台科大<br>化工碩士]
+            B --> C[台大<br>資管課程]
+            C --> D[交大<br>管理碩士]
+            D --> E[台灣AI學校<br>經理人班]
+            E --> F[台灣AI學校<br>技術領袖班]
 
-        style A fill:#f9f,stroke:#333,stroke-width:4px
-        style B fill:#bbf,stroke:#333,stroke-width:4px
-        style C fill:#ddf,stroke:#333,stroke-width:4px
-        style D fill:#fdd,stroke:#333,stroke-width:4px
-        style E fill:#dfd,stroke:#333,stroke-width:4px
-    """
-    st_mermaid(core_skills_chart)
-
-    # 添加 Mermaid 圖表 - 學習歷程
-    st.markdown("## 學習歷程")
-    education_chart = """
-    graph TD
-        A[逢甲大學<br>化工學士] --> B[台科大<br>化工碩士]
-        B --> C[台大<br>資管課程]
-        C --> D[交大<br>管理碩士]
-
-        style A fill:#f9f,stroke:#333,stroke-width:4px
-        style B fill:#bbf,stroke:#333,stroke-width:4px
-        style C fill:#ddf,stroke:#333,stroke-width:4px
-        style D fill:#dfd,stroke:#333,stroke-width:4px
-    """
-    st_mermaid(education_chart)
+            style A fill:#f9f,stroke:#333,stroke-width:4px
+            style B fill:#bbf,stroke:#333,stroke-width:4px
+            style C fill:#ddf,stroke:#333,stroke-width:4px
+            style D fill:#dfd,stroke:#333,stroke-width:4px
+            style E fill:#ffd,stroke:#333,stroke-width:4px
+            style F fill:#fdd,stroke:#333,stroke-width:4px
+        """
+        st_mermaid(education_chart)
 
 elif page == "🌟 個人特質":
-    st.markdown("""
-    <style>
-    .personality-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        padding: 1rem;
-    }
-    .personality-item {
-        background: #ffffff;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .personality-item h3 {
-        color: #1e88e5;
-        margin-bottom: 1rem;
-        font-size: 1.3rem;
-    }
-    .personality-item ul {
-        list-style-type: none;
-        padding-left: 0;
-    }
-    .personality-item li {
-        margin-bottom: 0.5rem;
-        padding-left: 1.5rem;
-        position: relative;
-    }
-    .personality-item li:before {
-        content: "•";
-        color: #1e88e5;
-        position: absolute;
-        left: 0;
-    }
-    </style>
-
-    <div class="personality-container">
-        <div class="personality-item">
-            <h3>🎯 領導力與團隊合作</h3>
-            <ul>
-                <li>具備優秀的團隊領導能力</li>
-                <li>良好的溝通技巧</li>
-                <li>具有同理心</li>
-            </ul>
-        </div>
-        <div class="personality-item">
-            <h3>🚀 學習與創新</h3>
-            <ul>
-                <li>持續學習的熱情</li>
-                <li>創新思維</li>
-                <li>解決問題的能力</li>
-            </ul>
-        </div>
-        <div class="personality-item">
-            <h3>💡 專業素養</h3>
-            <ul>
-                <li>高度責任感</li>
-                <li>注重細節</li>
-                <li>追求卓越</li>
-            </ul>
-        </div>
-        <div class="personality-item">
-            <h3>🤝 團隊精神</h3>
-            <ul>
-                <li>良好的團隊合作</li>
-                <li>積極主動</li>
-                <li>樂於分享</li>
-            </ul>
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("## 🌟 個人特質")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.info("#### 🎯 領導力與團隊合作")
+        st.markdown("""
+        - 具備優秀的團隊領導能力
+        - 良好的溝通技巧
+        - 具有同理心
+        """)
+        
+        st.success("#### 💡 專業素養")
+        st.markdown("""
+        - 高度責任感
+        - 注重細節
+        - 追求卓越
+        """)
+    
+    with col2:
+        st.warning("#### 🚀 學習與創新")
+        st.markdown("""
+        - 持續學習的熱情
+        - 創新思維
+        - 解決問題的能力
+        """)
+        
+        st.info("#### 🤝 團隊精神")
+        st.markdown("""
+        - 良好的團隊合作
+        - 積極主動
+        - 樂於分享
+        """)
 
     # 添加能力評分
     st.markdown("### 🎯 能力評分")
@@ -975,35 +963,435 @@ elif page == "📈 專案展示":
     progress = [85, 90, 80, 75, 88, 70, 95]
 
     # 創建條形圖展示項目進度
-    st.markdown("### 專案進度概覽")
+    st.markdown("## 專案進度概覽")
     # 使用 Plotly 替代 Matplotlib
     fig = px.bar(
         x=progress,
         y=projects,
         orientation='h',
-        labels={"x": "進度完成百分比 (%)", "y": ""},
-        title="專案進度概覽"
+        labels={"x": "進度完成百分比 (%)", "y": "專案名稱"}
     )
     fig.update_layout(
-        title_font_size=20,
         xaxis_range=[0, 100],
-        height=400,
-        margin=dict(l=0, r=0, t=40, b=0)
+        height=450,
+        margin=dict(l=20, r=50, t=30, b=50),
+        font=dict(size=14),
+        yaxis=dict(tickfont=dict(size=14)),
+        xaxis=dict(tickfont=dict(size=12), title_font=dict(size=14))
     )
     # 添加標籤
     fig.update_traces(
         texttemplate='%{x}%',
         textposition='outside',
+        textfont=dict(size=14),
         marker_color='rgba(74, 144, 226, 0.7)',
         hoverinfo='text',
         hovertext=[f"{p}: {v}%" for p, v in zip(projects, progress)]
     )
     st.plotly_chart(fig, use_container_width=True)
+    
+    # LLM 大語言模型應用專案
+    st.markdown("---")
+    
+    # 大標題區塊
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; margin-bottom: 25px; text-align: center;'>
+        <h1 style='color: white; margin: 0;'>🤖 大語言模型技術與展望</h1>
+        <p style='color: #f0f0f0; margin-top: 10px; font-size: 1.2em;'>
+            語意分析 | 圖片分析 | 數據分析 | 資料庫查詢 | 語音辨識
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # LLM 核心技術圖示區 - 使用 PPT 圖片
+    st.markdown("### 🧠 核心技術平台")
+    
+    # 取得圖片 base64
+    ollama_img = LLM_IMAGES.get("slide2_img2", {}).get("base64", "")
+    innogpt_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        img_html = f'<img src="data:image/png;base64,{ollama_img}" style="width:120px; height:120px; object-fit:contain;">' if ollama_img else '<div style="font-size: 4em;">🦙</div>'
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #232526 0%, #414345 100%); padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #00d4ff;'>
+            {img_html}
+            <h3 style='color: #00d4ff; margin: 10px 0 0 0;'>OLLAMA</h3>
+            <p style='color: #aaa; margin: 10px 0 0 0;'>本機運行開源 LLM</p>
+            <p style='color: #888; font-size: 0.85em;'>Llama / Mistral / Gemma</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        img_html = f'<img src="data:image/png;base64,{innogpt_img}" style="width:120px; height:120px; object-fit:contain;">' if innogpt_img else '<div style="font-size: 4em;">🧠</div>'
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #10a37f;'>
+            {img_html}
+            <h3 style='color: #10a37f; margin: 10px 0 0 0;'>INNO GPT</h3>
+            <p style='color: #aaa; margin: 10px 0 0 0;'>企業內部 API</p>
+            <p style='color: #888; font-size: 0.85em;'>RAG / 圖片分析 / 數據處理</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #ff6b6b;'>
+            <div style='font-size: 4em; margin-bottom: 10px;'>🎙️</div>
+            <h3 style='color: #ff6b6b; margin: 0;'>Whisper</h3>
+            <p style='color: #aaa; margin: 10px 0 0 0;'>OpenAI 語音辨識</p>
+            <p style='color: #888; font-size: 0.85em;'>會議紀錄 / 語音轉文字</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 五大功能圖示 - 使用 PPT Slide 1 的圖示
+    st.markdown("### ⚡ 五大 AI 應用功能")
+    
+    # 取得五大功能圖示
+    icon1 = LLM_IMAGES.get("slide1_img1", {}).get("base64", "")  # 語意分析
+    icon2 = LLM_IMAGES.get("slide1_img6", {}).get("base64", "")  # 圖片分析
+    icon3 = LLM_IMAGES.get("slide1_img3", {}).get("base64", "")  # 數據分析
+    icon4 = LLM_IMAGES.get("slide1_img4", {}).get("base64", "")  # 資料庫查詢
+    icon5 = LLM_IMAGES.get("slide1_img2", {}).get("base64", "")  # 語音辨識
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        img_html = f'<img src="data:image/png;base64,{icon1}" style="width:70px; height:70px; object-fit:contain;">' if icon1 else '<span style="font-size: 2.5em;">🗣️</span>'
+        st.markdown(f"""
+        <div style='text-align: center;'>
+            <div style='background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 15px; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;'>
+                {img_html}
+            </div>
+            <p style='color: #667eea; font-weight: bold; margin-top: 10px;'>語意分析</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        img_html = f'<img src="data:image/png;base64,{icon2}" style="width:70px; height:70px; object-fit:contain;">' if icon2 else '<span style="font-size: 2.5em;">🖼️</span>'
+        st.markdown(f"""
+        <div style='text-align: center;'>
+            <div style='background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%); padding: 15px; border-radius: 15px; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;'>
+                {img_html}
+            </div>
+            <p style='color: #f5576c; font-weight: bold; margin-top: 10px;'>圖片分析</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        img_html = f'<img src="data:image/png;base64,{icon3}" style="width:70px; height:70px; object-fit:contain;">' if icon3 else '<span style="font-size: 2.5em;">📊</span>'
+        st.markdown(f"""
+        <div style='text-align: center;'>
+            <div style='background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%); padding: 15px; border-radius: 15px; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;'>
+                {img_html}
+            </div>
+            <p style='color: #11998e; font-weight: bold; margin-top: 10px;'>數據分析</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        img_html = f'<img src="data:image/png;base64,{icon4}" style="width:70px; height:70px; object-fit:contain;">' if icon4 else '<span style="font-size: 2.5em;">🗄️</span>'
+        st.markdown(f"""
+        <div style='text-align: center;'>
+            <div style='background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); padding: 15px; border-radius: 15px; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;'>
+                {img_html}
+            </div>
+            <p style='color: #4facfe; font-weight: bold; margin-top: 10px;'>資料庫查詢</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col5:
+        img_html = f'<img src="data:image/png;base64,{icon5}" style="width:70px; height:70px; object-fit:contain;">' if icon5 else '<span style="font-size: 2.5em;">🎤</span>'
+        st.markdown(f"""
+        <div style='text-align: center;'>
+            <div style='background: linear-gradient(180deg, #fa709a 0%, #fee140 100%); padding: 15px; border-radius: 15px; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;'>
+                {img_html}
+            </div>
+            <p style='color: #fa709a; font-weight: bold; margin-top: 10px;'>語音辨識</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### 📦 應用專案詳情")
+    
+    # 取得更多圖片用於專案卡片
+    ollama_card_img = LLM_IMAGES.get("slide2_img2", {}).get("base64", "")
+    innogpt_card_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")
+    
+    # 六大功能卡片
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        img_html = f'<img src="data:image/png;base64,{ollama_card_img}" style="width:80px; height:80px; object-fit:contain; float:right;">' if ollama_card_img else ''
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            {img_html}
+            <h3 style='color: white; margin-top: 0;'>🔧 機況報表智能分類</h3>
+            <p style='color: #e0ffe0; font-size: 0.9em;'><strong>技術: OLLAMA 本機運行</strong></p>
+            <ul style='color: #f0f0f0; font-size: 0.95em;'>
+                <li>讀取機況內容自動分類狀態</li>
+                <li>機況報表智能查詢</li>
+                <li>自動存入資料庫</li>
+            </ul>
+            <p style='color: #ffeb3b; font-size: 0.9em;'>💡 解決: 機況分散不易查詢</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        img_html = f'<img src="data:image/png;base64,{ollama_card_img}" style="width:80px; height:80px; object-fit:contain; float:right;">' if ollama_card_img else ''
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            {img_html}
+            <h3 style='color: white; margin-top: 0;'>📝 Release Table 分析</h3>
+            <p style='color: #e0f7ff; font-size: 0.9em;'><strong>技術: OLLAMA 本機運行</strong></p>
+            <ul style='color: #f0f0f0; font-size: 0.95em;'>
+                <li>讀取 COMMENT 內容分類狀態</li>
+                <li>Release Table 報表分析查詢</li>
+                <li>自動存入資料庫</li>
+            </ul>
+            <p style='color: #ffeb3b; font-size: 0.9em;'>💡 解決: 值班COMMENT雜亂無序</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        img_html = f'<img src="data:image/png;base64,{innogpt_card_img}" style="width:80px; height:80px; object-fit:contain; float:right;">' if innogpt_card_img else ''
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            {img_html}
+            <h3 style='color: white; margin-top: 0;'>🎯 當機產品 AI 處理 (RAG)</h3>
+            <p style='color: #ffe0f0; font-size: 0.9em;'><strong>技術: INNO GPT</strong></p>
+            <ul style='color: #f0f0f0; font-size: 0.95em;'>
+                <li>工程師歷史處理異常資料</li>
+                <li>AI 分析與識別 LOG 資料</li>
+                <li>提出有效後續處理建議</li>
+            </ul>
+            <p style='color: #ffeb3b; font-size: 0.9em;'>💡 自動化異常處理流程</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    col4, col5, col6 = st.columns(3)
+    
+    with col4:
+        img_html = f'<img src="data:image/png;base64,{innogpt_card_img}" style="width:80px; height:80px; object-fit:contain; float:right;">' if innogpt_card_img else ''
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            {img_html}
+            <h3 style='color: #333; margin-top: 0;'>📊 RPSC 數據分析</h3>
+            <p style='color: #555; font-size: 0.9em;'><strong>技術: INNO GPT API</strong></p>
+            <ul style='color: #444; font-size: 0.95em;'>
+                <li>RPSC RAW DATA 繪製 Trend Chart</li>
+                <li>餵圖給 GPT 分析</li>
+                <li>參考 RULE 找出 EP</li>
+                <li>數據清理與自動分析</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col5:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            <h3 style='color: #333; margin-top: 0;'>🎤 會議語音紀錄</h3>
+            <p style='color: #555; font-size: 0.9em;'><strong>技術: Whisper 語音辨識</strong></p>
+            <ul style='color: #444; font-size: 0.95em;'>
+                <li>會議語音自動紀錄</li>
+                <li>智能會議整理</li>
+                <li>重點摘要生成</li>
+            </ul>
+            <p style='color: #e91e63; font-size: 0.9em;'>💡 會議效率大幅提升</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col6:
+        # 同時顯示 OLLAMA 和 INNO GPT 圖片
+        img_html1 = f'<img src="data:image/png;base64,{innogpt_card_img}" style="width:60px; height:60px; object-fit:contain;">' if innogpt_card_img else ''
+        img_html2 = f'<img src="data:image/png;base64,{ollama_card_img}" style="width:60px; height:60px; object-fit:contain;">' if ollama_card_img else ''
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 15px; min-height: 280px;'>
+            <div style='float:right;'>{img_html1}{img_html2}</div>
+            <h3 style='color: white; margin-top: 0;'>🔍 跨資料庫智能查詢</h3>
+            <p style='color: #e0e0ff; font-size: 0.9em;'><strong>技術: GPT/OLLAMA 生成 SQL</strong></p>
+            <ul style='color: #f0f0f0; font-size: 0.95em;'>
+                <li>Yield/機況/Release 限制查詢</li>
+                <li>跨資料庫異常分析</li>
+                <li>報表呈現與自動存檔</li>
+            </ul>
+            <p style='color: #ffeb3b; font-size: 0.9em;'>💡 查詢時間 1HR → 5min</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # 專案效益總覽
+    st.markdown("---")
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); padding: 20px; border-radius: 15px; margin-bottom: 20px;'>
+        <h2 style='color: #333; text-align: center; margin: 0;'>📈 專案效益總覽 - 提質、增效、降本、減存</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # 效益指標卡片
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown("""
+        <div style='background: #4CAF50; padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='color: white; margin: 0; font-size: 2.5em;'>92%</h1>
+            <p style='color: #e8f5e9; margin: 5px 0 0 0;'>效率提升</p>
+            <p style='color: #c8e6c9; font-size: 0.8em;'>1 HR → 5 min</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style='background: #2196F3; padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='color: white; margin: 0; font-size: 2.5em;'>6</h1>
+            <p style='color: #e3f2fd; margin: 5px 0 0 0;'>AI 應用專案</p>
+            <p style='color: #bbdefb; font-size: 0.8em;'>持續擴展中</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style='background: #FF9800; padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='color: white; margin: 0; font-size: 2.5em;'>3</h1>
+            <p style='color: #fff3e0; margin: 5px 0 0 0;'>技術平台</p>
+            <p style='color: #ffe0b2; font-size: 0.8em;'>OLLAMA/GPT/Whisper</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div style='background: #9C27B0; padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='color: white; margin: 0; font-size: 2.5em;'>∞</h1>
+            <p style='color: #f3e5f5; margin: 5px 0 0 0;'>應用潛力</p>
+            <p style='color: #e1bee7; font-size: 0.8em;'>製造業智能轉型</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 效益比較圖表
+    benefit_data = {
+        "專案名稱": ["跨資料庫查詢", "機況報表分類", "Release Table 分析", "RPSC 數據分析"],
+        "原始耗時": [60, 60, 45, 30],
+        "優化後耗時": [5, 5, 5, 5],
+    }
+    
+    fig = go.Figure(data=[
+        go.Bar(name='原始耗時 (分鐘)', x=benefit_data["專案名稱"], y=benefit_data["原始耗時"], 
+               marker_color='rgba(255, 99, 71, 0.7)', text=benefit_data["原始耗時"], textposition='outside'),
+        go.Bar(name='優化後耗時 (分鐘)', x=benefit_data["專案名稱"], y=benefit_data["優化後耗時"], 
+               marker_color='rgba(60, 179, 113, 0.7)', text=benefit_data["優化後耗時"], textposition='outside')
+    ])
+    
+    fig.update_layout(
+        barmode='group',
+        xaxis_title="專案名稱",
+        yaxis_title="耗時 (分鐘)",
+        height=400,
+        font=dict(size=14),
+        legend=dict(font=dict(size=14)),
+        margin=dict(t=30)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # 技術架構圖
+    st.markdown("### 🏗️ 技術架構")
+    llm_architecture = """
+    graph TD
+        A[數據來源] --> B[大語言模型]
+        B --> C[OLLAMA 本機運行]
+        B --> D[INNO GPT API]
+        B --> E[Whisper 語音]
+        C --> F[機況分類]
+        C --> G[Release分析]
+        D --> H[RAG 處理]
+        D --> I[RPSC 分析]
+        E --> J[會議紀錄]
+        F --> K[資料庫]
+        G --> K
+        H --> K
+        I --> K
+        J --> K
+        K --> L[報表呈現]
+        
+        style A fill:#f9f,stroke:#333,stroke-width:2px
+        style B fill:#bbf,stroke:#333,stroke-width:2px
+        style K fill:#dfd,stroke:#333,stroke-width:2px
+        style L fill:#fdd,stroke:#333,stroke-width:2px
+    """
+    st_mermaid(llm_architecture)
 
 elif page == "🔬 專案分析":
     st.markdown("# 進階數據分析")
+    
+    # LLM 大語言模型技術展示
+    st.markdown("## 🤖 大語言模型技術與展望")
+    
+    st.markdown("""
+    運用大語言模型技術，整合多元功能實現製造業智能化轉型：
+    """)
+    
+    # LLM 核心功能展示
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info("#### 🗣️ 語意分析")
+        st.markdown("自然語言處理與理解")
+    with col2:
+        st.success("#### 🖼️ 圖片分析")
+        st.markdown("視覺識別與缺陷檢測")
+    with col3:
+        st.warning("#### 📊 數據分析")
+        st.markdown("智能數據處理與洞察")
+    
+    col4, col5, col6 = st.columns(3)
+    with col4:
+        st.error("#### 🗄️ 資料庫查詢")
+        st.markdown("自然語言轉 SQL 查詢")
+    with col5:
+        st.info("#### 🎤 語音辨識")
+        st.markdown("Whisper 會議記錄系統")
+    with col6:
+        st.success("#### 🔄 RAG 應用")
+        st.markdown("知識檢索增強生成")
+    
+    st.markdown("---")
+    
+    # LLM 技術架構圖
+    st.markdown("### 🏗️ LLM 技術架構")
+    llm_tech_flow = """
+    graph LR
+        A[數據輸入] --> B{大語言模型}
+        B --> C[OLLAMA<br>本機運行]
+        B --> D[INNO GPT<br>API 調用]
+        B --> E[Whisper<br>語音辨識]
+        
+        C --> F[機況分類]
+        C --> G[Release分析]
+        D --> H[RAG處理]
+        D --> I[RPSC分析]
+        E --> J[會議整理]
+        
+        F --> K[(資料庫)]
+        G --> K
+        H --> K
+        I --> K
+        J --> K
+        
+        K --> L[報表呈現]
+        
+        style A fill:#e1f5fe
+        style B fill:#fff3e0
+        style K fill:#e8f5e9
+        style L fill:#fce4ec
+    """
+    st_mermaid(llm_tech_flow)
+    
+    st.markdown("---")
 
-    # 直接顯示所有分析內容，移除下拉選單
+    # 原有製程分析內容
     st.markdown("""
     ## 製程分析
     - 即時監控與分析製程參數
@@ -1088,6 +1476,161 @@ elif page == "🔬 專案分析":
         yaxis_title="測量值"
     )
     st.plotly_chart(fig)
+
+elif page == "🏆 證照展示":
+    st.markdown("# 🏆 證照展示")
+    
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; margin-bottom: 20px;'>
+        <h3 style='color: white; margin: 0;'>🌟 活到老，學到老</h3>
+        <p style='color: #f0f0f0; margin-top: 10px;'>
+        除了專業技術的持續精進，我也熱衷於探索不同領域的知識與技能。<br>
+        2024年，我利用工作之餘考取了多項餐飲相關證照，展現終身學習的態度與多元發展的熱情。
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # 證照統計卡片
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='margin: 0; font-size: 3em;'>🍜</h1>
+            <h4 style='margin: 5px 0;'>中餐丙級</h4>
+            <span style='background: #4CAF50; color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.8em;'>✓ 已取得</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='margin: 0; font-size: 3em;'>🎂</h1>
+            <h4 style='margin: 5px 0;'>蛋糕丙級</h4>
+            <span style='background: #4CAF50; color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.8em;'>✓ 已取得</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='margin: 0; font-size: 3em;'>🍝</h1>
+            <h4 style='margin: 5px 0;'>西餐丙級</h4>
+            <span style='background: #FF9800; color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.8em;'>⏳ 待取得</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with col4:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); padding: 20px; border-radius: 15px; text-align: center;'>
+            <h1 style='margin: 0; font-size: 3em;'>🍸</h1>
+            <h4 style='margin: 5px 0;'>調酒乙級</h4>
+            <span style='background: #FF9800; color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.8em;'>⏳ 待取得</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 證照資訊
+    licenses_info = {
+        "中餐": {
+            "title": "🍜 中餐烹調丙級",
+            "date": "2024 上半年",
+            "status": "已取得",
+            "status_color": "#4CAF50",
+            "description": "中式料理基礎技能認證，包含刀工、火候控制及各式中華料理烹調技巧。",
+            "gradient": "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
+        },
+        "蛋糕": {
+            "title": "🎂 烘焙食品丙級 (蛋糕)",
+            "date": "2024 上半年",
+            "status": "已取得",
+            "status_color": "#4CAF50",
+            "description": "西點蛋糕製作技能認證，涵蓋海綿蛋糕、戚風蛋糕等基礎烘焙技術。",
+            "gradient": "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+        },
+        "西餐": {
+            "title": "🍝 西餐烹調丙級",
+            "date": "2024 下半年",
+            "status": "待取得",
+            "status_color": "#FF9800",
+            "description": "西式料理基礎技能認證，包含醬汁製作、肉類處理及經典西餐烹調。",
+            "gradient": "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
+        },
+        "調酒": {
+            "title": "🍸 調酒乙級",
+            "date": "2024 下半年",
+            "status": "待取得",
+            "status_color": "#FF9800",
+            "description": "專業調酒技能認證，涵蓋經典調酒配方、創意調酒及吧台服務技巧。",
+            "gradient": "linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)"
+        }
+    }
+    
+    # 顯示每個證照類別
+    for category, info in licenses_info.items():
+        st.markdown(f"""
+        <div style='background: {info["gradient"]}; padding: 20px; border-radius: 15px; margin-bottom: 15px;'>
+            <div style='display: flex; justify-content: space-between; align-items: center;'>
+                <h2 style='margin: 0; color: #333;'>{info['title']}</h2>
+                <span style='background: {info["status_color"]}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>{info['status']}</span>
+            </div>
+            <p style='color: #555; margin: 10px 0 5px 0;'>📅 <strong>取得時間</strong>: {info['date']}</p>
+            <p style='color: #666; margin: 5px 0;'>{info['description']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 顯示該類別的圖片
+        if category in LICENSE_IMAGES and LICENSE_IMAGES[category]:
+            images = LICENSE_IMAGES[category]
+            
+            # 每行顯示 4 張圖片
+            cols_per_row = 4
+            for i in range(0, len(images), cols_per_row):
+                cols = st.columns(cols_per_row)
+                for j, col in enumerate(cols):
+                    if i + j < len(images):
+                        img_data = images[i + j]
+                        with col:
+                            st.markdown(
+                                f'<div style="height: 200px; overflow: hidden; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                                f'<img src="data:image/{img_data["ext"]};base64,{img_data["base64"]}" style="width:100%; height:100%; object-fit:cover;">'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+        else:
+            st.info("📷 圖片載入中...")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 學習心得
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; margin-top: 20px;'>
+        <h2 style='color: white; text-align: center;'>💡 學習心得</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 25px; border-radius: 15px; min-height: 180px;'>
+            <h4 style='color: white; margin-top: 0;'>✨ 跨領域學習的價值</h4>
+            <ul style='color: #f0f0f0; margin-bottom: 0;'>
+                <li>培養不同領域的思維方式</li>
+                <li>增進手作與創造力</li>
+                <li>舒壓與工作生活平衡</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 25px; border-radius: 15px; min-height: 180px;'>
+            <h4 style='color: white; margin-top: 0;'>🚀 終身學習的態度</h4>
+            <ul style='color: #f0f0f0; margin-bottom: 0;'>
+                <li>保持對新事物的好奇心</li>
+                <li>挑戰舒適圈，持續成長</li>
+                <li>將學習視為生活的一部分</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
 # 頁腳
 st.markdown("""
