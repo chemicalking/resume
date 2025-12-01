@@ -1007,8 +1007,8 @@ elif page == "📈 專案展示":
     st.markdown("### 🧠 核心技術平台")
     
     # 取得圖片 base64
-    ollama_img = LLM_IMAGES.get("slide2_img2", {}).get("base64", "")
-    innogpt_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")
+    ollama_img = LLM_IMAGES.get("slide2_img4", {}).get("base64", "")  # OLLAMA 羊駝圖
+    innogpt_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")  # INNO GPT 機器人
     
     col1, col2, col3 = st.columns(3)
     
@@ -1117,8 +1117,8 @@ elif page == "📈 專案展示":
     st.markdown("### 📦 應用專案詳情")
     
     # 取得更多圖片用於專案卡片
-    ollama_card_img = LLM_IMAGES.get("slide2_img2", {}).get("base64", "")
-    innogpt_card_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")
+    ollama_card_img = LLM_IMAGES.get("slide2_img4", {}).get("base64", "")  # OLLAMA 羊駝圖
+    innogpt_card_img = LLM_IMAGES.get("slide4_img3", {}).get("base64", "")  # INNO GPT 機器人
     
     # 六大功能卡片
     col1, col2, col3 = st.columns(3)
