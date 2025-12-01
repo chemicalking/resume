@@ -143,7 +143,7 @@ st.set_page_config(
     page_title="Patrick Liou's Resume",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # Collapse sidebar on mobile by default
 )
 
 # Set font configuration
@@ -416,10 +416,41 @@ st.markdown("""
     
     /* Small screens (max-width: 768px) */
     @media screen and (max-width: 768px) {
-        /* Basic layout adjustments */
+        /* Hide sidebar to avoid blocking main content */
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        
+        /* Expanded sidebar style */
+        [data-testid="stSidebar"][aria-expanded="true"] {
+            display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 85% !important;
+            max-width: 300px !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            background: white !important;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2) !important;
+        }
+        
+        /* Main content area - ensure not blocked */
         .main .block-container {
-            padding: 1rem 0.5rem !important;
+            padding: 1rem 0.8rem !important;
             max-width: 100% !important;
+            margin-left: 0 !important;
+        }
+        
+        /* Ensure main content takes full width */
+        .main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Remove left padding */
+        section[data-testid="stSidebarContent"] {
+            padding: 1rem !important;
         }
         
         /* Font size adjustments */
@@ -492,12 +523,6 @@ st.markdown("""
         /* Plotly charts */
         .js-plotly-plot {
             width: 100% !important;
-        }
-        
-        /* Sidebar */
-        [data-testid="stSidebar"] {
-            width: 100% !important;
-            min-width: 100% !important;
         }
         
         /* Project cards */
