@@ -374,6 +374,176 @@ st.markdown("""
         gap: 1rem;
         margin: 2rem 0;
     }
+
+    /* ========== 手機響應式設計 ========== */
+    
+    /* 小螢幕裝置 (max-width: 768px) */
+    @media screen and (max-width: 768px) {
+        /* 基本布局調整 */
+        .main .block-container {
+            padding: 1rem 0.5rem !important;
+            max-width: 100% !important;
+        }
+        
+        /* 標題字體調整 */
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        h2 {
+            font-size: 1.3rem !important;
+        }
+        h3 {
+            font-size: 1.1rem !important;
+        }
+        
+        /* 個人資料區塊 */
+        .profile-section {
+            padding: 1.5rem !important;
+        }
+        .profile-section h1 {
+            font-size: 1.8rem !important;
+        }
+        .profile-section h2 {
+            font-size: 1.2rem !important;
+        }
+        
+        /* 卡片樣式調整 */
+        .skill-card, .education-card, .experience-card {
+            padding: 1rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* 技能標籤 */
+        .tech-badge {
+            padding: 0.5rem 0.8rem !important;
+            font-size: 0.9rem !important;
+        }
+        .tech-badge .icon {
+            font-size: 1.2rem !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        /* Streamlit 列調整 - 讓列變成垂直堆疊 */
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* 圖片調整 */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* LLM 圖示區調整 */
+        [data-testid="column"] > div > div {
+            min-height: auto !important;
+        }
+        
+        /* 文字大小調整 */
+        p, li {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+        }
+        
+        /* 表格調整 */
+        table {
+            font-size: 0.8rem !important;
+        }
+        
+        /* Plotly 圖表調整 */
+        .js-plotly-plot {
+            width: 100% !important;
+        }
+        
+        /* 側邊欄調整 */
+        [data-testid="stSidebar"] {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* 專案卡片 - 確保內容不溢出 */
+        div[style*="min-height: 280px"] {
+            min-height: auto !important;
+            padding: 15px !important;
+        }
+        div[style*="min-height: 280px"] h3 {
+            font-size: 1rem !important;
+        }
+        div[style*="min-height: 280px"] ul {
+            padding-left: 1.2rem !important;
+            font-size: 0.85rem !important;
+        }
+        div[style*="min-height: 280px"] img {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        /* 五大功能圖示調整 */
+        div[style*="width: 100px"] {
+            width: 60px !important;
+            height: 60px !important;
+            padding: 8px !important;
+        }
+        div[style*="width: 100px"] img {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        /* 證照圖片調整 */
+        div[style*="border-radius: 15px"] img {
+            max-height: 150px !important;
+        }
+    }
+    
+    /* 超小螢幕 (max-width: 480px) */
+    @media screen and (max-width: 480px) {
+        .main .block-container {
+            padding: 0.5rem 0.3rem !important;
+        }
+        
+        h1 {
+            font-size: 1.3rem !important;
+        }
+        h2 {
+            font-size: 1.1rem !important;
+        }
+        h3 {
+            font-size: 1rem !important;
+        }
+        
+        .profile-section h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        /* 核心技術平台卡片 */
+        div[style*="padding: 25px"] {
+            padding: 12px !important;
+        }
+        div[style*="padding: 25px"] h3 {
+            font-size: 0.95rem !important;
+        }
+        div[style*="padding: 25px"] img {
+            width: 60px !important;
+            height: 60px !important;
+        }
+        div[style*="font-size: 4em"] {
+            font-size: 2.5em !important;
+        }
+    }
+    
+    /* 平板裝置調整 (768px - 1024px) */
+    @media screen and (min-width: 769px) and (max-width: 1024px) {
+        .main .block-container {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        /* 允許兩列顯示 */
+        [data-testid="column"] {
+            min-width: 45% !important;
+        }
+    }
 </style>
 
 <script>
