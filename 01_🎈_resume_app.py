@@ -1713,6 +1713,14 @@ elif page == "🏆 證照展示":
     
     # 證照資訊
     licenses_info = {
+        "語言": {
+            "title": "🌐 多益英語證照",
+            "date": "",
+            "status": "已取得",
+            "status_color": "#4CAF50",
+            "description": "TOEIC 多益英語能力測驗證書，展現國際溝通與跨文化合作能力。",
+            "gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        },
         "中餐": {
             "title": "🍜 中餐烹調丙級",
             "date": "2024 上半年",
@@ -1749,16 +1757,31 @@ elif page == "🏆 證照展示":
     
     # 顯示每個證照類別
     for category, info in licenses_info.items():
-        st.markdown(f"""
-        <div style='background: {info["gradient"]}; padding: 20px; border-radius: 15px; margin-bottom: 15px;'>
-            <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <h2 style='margin: 0; color: #333;'>{info['title']}</h2>
-                <span style='background: {info["status_color"]}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>{info['status']}</span>
-            </div>
-            <p style='color: #555; margin: 10px 0 5px 0;'>📅 <strong>取得時間</strong>: {info['date']}</p>
-            <p style='color: #666; margin: 5px 0;'>{info['description']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # 構建日期行 - 根據背景決定文字顏色
+        is_dark_bg = category == "語言"  # 語言類別使用深色背景
+        text_color = "#fff" if is_dark_bg else "#333"
+        desc_color = "#e0e0e0" if is_dark_bg else "#555"
+        date_color = "#ddd" if is_dark_bg else "#555"
+        
+        date_html = ""
+        if info.get('date'):
+            date_html = f"<p style='color: {date_color}; margin: 10px 0 5px 0;'>📅 <strong>取得時間</strong>: {info['date']}</p>"
+        
+        # 構建完整的 HTML
+        gradient = info["gradient"]
+        title = info["title"]
+        status_color = info["status_color"]
+        status = info["status"]
+        description = info["description"]
+        
+        st.markdown(f"""<div style="background: {gradient}; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<h2 style="margin: 0; color: {text_color};">{title}</h2>
+<span style="background: {status_color}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{status}</span>
+</div>
+{date_html}
+<p style="color: {desc_color}; margin: 5px 0;">{description}</p>
+</div>""", unsafe_allow_html=True)
         
         # 顯示該類別的圖片
         if category in LICENSE_IMAGES and LICENSE_IMAGES[category]:
