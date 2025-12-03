@@ -1537,6 +1537,14 @@ elif page == "🏆 Certifications":
     
     # Certification info
     licenses_info = {
+        "語言": {
+            "title": "🌐 TOEIC English Certificate",
+            "date": "",
+            "status": "Obtained",
+            "status_color": "#4CAF50",
+            "description": "TOEIC English proficiency test certificate, demonstrating international communication and cross-cultural collaboration abilities.",
+            "gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        },
         "中餐": {
             "title": "🍜 Chinese Cuisine (Level C)",
             "date": "First Half of 2024",
@@ -1573,16 +1581,28 @@ elif page == "🏆 Certifications":
     
     # Display each certification category
     for category, info in licenses_info.items():
-        st.markdown(f"""
-        <div style='background: {info["gradient"]}; padding: 20px; border-radius: 15px; margin-bottom: 15px;'>
-            <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <h2 style='margin: 0; color: #333;'>{info['title']}</h2>
-                <span style='background: {info["status_color"]}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;'>{info['status']}</span>
-            </div>
-            <p style='color: #555; margin: 10px 0 5px 0;'>📅 <strong>Obtained</strong>: {info['date']}</p>
-            <p style='color: #666; margin: 5px 0;'>{info['description']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Determine text color based on background
+        is_dark_bg = category == "語言"  # Language category has dark background
+        text_color = "#fff" if is_dark_bg else "#333"
+        desc_color = "#e0e0e0" if is_dark_bg else "#555"
+        date_color = "#ddd" if is_dark_bg else "#555"
+        
+        date_line = f"<p style='color: {date_color}; margin: 10px 0 5px 0;'>📅 <strong>Obtained</strong>: {info['date']}</p>" if info.get('date') else ""
+        
+        gradient = info["gradient"]
+        title = info["title"]
+        status_color = info["status_color"]
+        status = info["status"]
+        description = info["description"]
+        
+        st.markdown(f"""<div style="background: {gradient}; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<h2 style="margin: 0; color: {text_color};">{title}</h2>
+<span style="background: {status_color}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{status}</span>
+</div>
+{date_line}
+<p style="color: {desc_color}; margin: 5px 0;">{description}</p>
+</div>""", unsafe_allow_html=True)
         
         # Display images for this category
         if category in LICENSE_IMAGES and LICENSE_IMAGES[category]:
